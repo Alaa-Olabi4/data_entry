@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الوصول - نموذج طلب القرض</title>
+    <title>نموذج طلب القرض - ليرون</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -19,179 +19,6 @@
             padding: 20px;
         }
 
-        /* شاشة الوصول */
-        .access-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-            display: none;
-        }
-
-        .access-header {
-            background: #2c3e50;
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-bottom: 5px solid #3498db;
-        }
-
-        .access-header h2 {
-            font-size: 28px;
-            margin-bottom: 15px;
-        }
-
-        .access-content {
-            padding: 40px;
-        }
-
-        .ip-display {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            border: 2px solid #e9ecef;
-            text-align: center;
-        }
-
-        .ip-display i {
-            font-size: 24px;
-            color: #3498db;
-            margin-bottom: 10px;
-        }
-
-        .ip-address {
-            font-family: monospace;
-            font-size: 20px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin: 10px 0;
-        }
-
-        .access-message {
-            background: #fff3cd;
-            border: 2px solid #ffeaa7;
-            color: #856404;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-align: right;
-        }
-
-        .access-message.error {
-            background: #fee;
-            border-color: #e74c3c;
-            color: #c0392b;
-        }
-
-        .access-message.success {
-            background: #dff0d8;
-            border-color: #27ae60;
-            color: #219653;
-        }
-
-        .btn-access {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
-            margin: 10px;
-        }
-
-        .btn-access:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .btn-access.success {
-            background: #27ae60;
-        }
-
-        .btn-access.success:hover {
-            background: #219653;
-        }
-
-        .access-actions {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .admin-panel {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            margin-top: 30px;
-            border: 2px solid #3498db;
-            display: none;
-        }
-
-        .admin-panel h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .admin-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .admin-input input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .admin-list {
-            max-height: 200px;
-            overflow-y: auto;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-
-        .admin-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .admin-item:last-child {
-            border-bottom: none;
-        }
-
-        .remove-ip {
-            color: #e74c3c;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 5px 10px;
-        }
-
-        /* النموذج الرئيسي */
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -199,7 +26,6 @@
             border-radius: 15px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
-            display: none;
         }
 
         .header {
@@ -208,28 +34,11 @@
             padding: 25px 30px;
             text-align: center;
             border-bottom: 5px solid #3498db;
-            position: relative;
         }
 
         .header h1 {
             font-size: 28px;
             margin-bottom: 10px;
-        }
-
-        .logout-btn {
-            position: absolute;
-            left: 30px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .warning {
@@ -405,77 +214,14 @@
                 width: 100%;
                 justify-content: center;
             }
-            
-            .access-actions {
-                flex-direction: column;
-            }
-            
-            .btn-access {
-                width: 100%;
-                margin: 5px 0;
-            }
-            
-            .admin-input {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- شاشة التحكم بالوصول -->
-    <div class="access-container" id="accessContainer">
-        <div class="access-header">
-            <h2><i class="fas fa-shield-alt"></i> نظام التحكم بالوصول للموظفين</h2>
-            <p>الوصول مسموح فقط للعناوين IP المصرح بها</p>
-        </div>
-        
-        <div class="access-content">
-            <div class="ip-display">
-                <i class="fas fa-network-wired"></i>
-                <div class="ip-address" id="userIpDisplay">جاري التعرف على عنوان IP...</div>
-                <p>عنوان IP الخاص بك</p>
-            </div>
-            
-            <div class="access-message" id="accessMessage">
-                <i class="fas fa-info-circle"></i>
-                <span>يتم التحقق من صلاحية الوصول...</span>
-            </div>
-            
-            <div class="access-actions">
-                <button class="btn-access" onclick="checkAccess()">
-                    <i class="fas fa-check-circle"></i> التحقق من الوصول
-                </button>
-                
-                <button class="btn-access" onclick="showAdminPanel()" id="adminBtn">
-                    <i class="fas fa-cogs"></i> لوحة المسؤول
-                </button>
-            </div>
-            
-            <div class="admin-panel" id="adminPanel">
-                <h3><i class="fas fa-user-lock"></i> إدارة عناوين IP المسموح بها</h3>
-                
-                <div class="admin-input">
-                    <input type="text" id="newIpInput" placeholder="أدخل عنوان IP جديد (مثال: 192.168.1.1)">
-                    <button class="btn-access" onclick="addAllowedIP()">
-                        <i class="fas fa-plus"></i> إضافة
-                    </button>
-                </div>
-                
-                <div class="admin-list" id="allowedIpsList">
-                    <!-- قائمة عناوين IP المسموح بها -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- النموذج الرئيسي -->
-    <div class="container" id="mainContainer">
+    <div class="container">
         <div class="header">
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
-            </button>
             <h1><i class="fas fa-file-contract"></i> نموذج طلب القرض - ليرون</h1>
-            <p>الوصول مسموح فقط للموظفين المصرح لهم</p>
+            <p>وضع التدريب مفعل: التسجيل مفتوح حالياً بدون قيود زمنية.</p>
         </div>
 
         <div class="warning">
@@ -689,17 +435,6 @@
                     <input type="text" id="buildingNumber" placeholder="رقم البناء">
                 </div>
                 <button class="copy-btn" onclick="copyFieldValue('buildingNumber')">
-                    <i class="fas fa-copy"></i> نسخ
-                </button>
-            </div>
-
-            <!-- الحقل المضاف: رقم الهاتف في المعلومات الإضافية -->
-            <div class="field-row">
-                <div class="field-label"><i class="fas fa-phone"></i> رقم الهاتف</div>
-                <div class="field-input">
-                    <input type="tel" id="additionalPhone" placeholder="رقم الهاتف">
-                </div>
-                <button class="copy-btn" onclick="copyFieldValue('additionalPhone')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -1016,207 +751,6 @@
     </div>
 
     <script>
-        // ==================== نظام التحكم بالوصول ====================
-        
-        // كلمة مرور المسؤول للتحكم في عناوين IP
-        const ADMIN_PASSWORD = "admin123";
-        
-        // قائمة عناوين IP المسموح بها (يمكن إضافة المزيد)
-        let allowedIPs = [
-            "127.0.0.1",        // localhost للاختبار
-            "192.168.1.1",      // مثال لـ IP داخلي
-            "192.168.1.100",     // مثال آخر
-            "46.58.128.13",
-            "169.150.196.108",
-            "46.58.166.178",
-            "37.48.156.99","178.171.233.196" 
-        ];
-        
-        // عنوان IP للمستخدم الحالي
-        let userIP = "";
-        
-        // حالة تسجيل الدخول
-        let isLoggedIn = false;
-        
-        // ==================== وظائف النظام ====================
-        
-        // الحصول على IP المستخدم
-        async function getUserIP() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                userIP = data.ip;
-                document.getElementById('userIpDisplay').textContent = userIP;
-                return userIP;
-            } catch (error) {
-                console.error('خطأ في الحصول على IP:', error);
-                // استخدام IP وهمي في حالة الفشل
-                userIP = "192.168.1." + Math.floor(Math.random() * 255);
-                document.getElementById('userIpDisplay').textContent = userIP + " (تقديري)";
-                return userIP;
-            }
-        }
-        
-        // التحقق من الوصول
-        function checkAccess() {
-            const accessMessage = document.getElementById('accessMessage');
-            
-            // التحقق إذا كان IP المستخدم مسموحاً
-            if (allowedIPs.includes(userIP)) {
-                // عرض رسالة نجاح
-                accessMessage.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    <div>
-                        <strong>تم التحقق بنجاح!</strong><br>
-                        عنوان IP الخاص بك (${userIP}) مسموح بالوصول.<br>
-                        جاري تحميل النموذج...
-                    </div>
-                `;
-                accessMessage.className = "access-message success";
-                
-                // حفظ حالة الدخول
-                isLoggedIn = true;
-                localStorage.setItem('loanFormAccess', 'granted');
-                localStorage.setItem('loanFormIP', userIP);
-                localStorage.setItem('loginTime', new Date().getTime());
-                
-                // الانتقال للنموذج بعد تأخير قصير
-                setTimeout(showMainForm, 2000);
-            } else {
-                // عرض رسالة خطأ
-                accessMessage.innerHTML = `
-                    <i class="fas fa-times-circle"></i>
-                    <div>
-                        <strong>الوصول مرفوض!</strong><br>
-                        عنوان IP الخاص بك (${userIP}) غير مسموح بالوصول.<br>
-                        يرجى التواصل مع المسؤول لإضافة عنوان IP الخاص بك.
-                    </div>
-                `;
-                accessMessage.className = "access-message error";
-            }
-        }
-        
-        // التحقق التلقائي عند التحميل
-        async function autoCheckAccess() {
-            await getUserIP();
-            
-            // التحقق من تسجيل الدخول السابق
-            const storedAccess = localStorage.getItem('loanFormAccess');
-            const storedIP = localStorage.getItem('loanFormIP');
-            const loginTime = localStorage.getItem('loginTime');
-            const currentTime = new Date().getTime();
-            
-            // إذا كان مسجل دخول من قبل ومن نفس الـ IP ولم تنته الجلسة (24 ساعة)
-            if (storedAccess === 'granted' && storedIP === userIP && 
-                (currentTime - loginTime) < 24 * 60 * 60 * 1000) {
-                isLoggedIn = true;
-                showMainForm();
-            } else {
-                // إظهار شاشة الوصول
-                document.getElementById('accessContainer').style.display = 'block';
-            }
-        }
-        
-        // إظهار النموذج الرئيسي
-        function showMainForm() {
-            document.getElementById('accessContainer').style.display = 'none';
-            document.getElementById('mainContainer').style.display = 'block';
-        }
-        
-        // إظهار لوحة المسؤول
-        function showAdminPanel() {
-            const password = prompt("أدخل كلمة مرور المسؤول:");
-            
-            if (password === ADMIN_PASSWORD) {
-                document.getElementById('adminPanel').style.display = 'block';
-                updateAllowedIPsList();
-                showNotification("مرحباً بك في لوحة المسؤول");
-            } else if (password !== null) {
-                alert("كلمة المرور غير صحيحة");
-            }
-        }
-        
-        // تحديث قائمة IPs المسموح بها
-        function updateAllowedIPsList() {
-            const listElement = document.getElementById('allowedIpsList');
-            listElement.innerHTML = '';
-            
-            allowedIPs.forEach((ip, index) => {
-                const item = document.createElement('div');
-                item.className = 'admin-item';
-                item.innerHTML = `
-                    <span>${ip}</span>
-                    <button class="remove-ip" onclick="removeIP(${index})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                `;
-                listElement.appendChild(item);
-            });
-        }
-        
-        // إضافة IP جديد
-        function addAllowedIP() {
-            const newIpInput = document.getElementById('newIpInput');
-            const newIp = newIpInput.value.trim();
-            
-            // التحقق من صحة IP
-            const ipPattern = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-            
-            if (!ipPattern.test(newIp)) {
-                alert("عنوان IP غير صحيح. الصيغة الصحيحة: 192.168.1.1");
-                return;
-            }
-            
-            if (allowedIPs.includes(newIp)) {
-                alert("عنوان IP موجود مسبقاً");
-                return;
-            }
-            
-            // إضافة IP جديد
-            allowedIPs.push(newIp);
-            updateAllowedIPsList();
-            newIpInput.value = '';
-            
-            // حفظ في localStorage
-            localStorage.setItem('allowedIPs', JSON.stringify(allowedIPs));
-            showNotification("تم إضافة عنوان IP بنجاح");
-        }
-        
-        // حذف IP
-        function removeIP(index) {
-            if (confirm("هل أنت متأكد من حذف عنوان IP هذا؟")) {
-                allowedIPs.splice(index, 1);
-                updateAllowedIPsList();
-                localStorage.setItem('allowedIPs', JSON.stringify(allowedIPs));
-                showNotification("تم حذف عنوان IP بنجاح");
-            }
-        }
-        
-        // تسجيل الخروج
-        function logout() {
-            if (confirm("هل تريد تسجيل الخروج؟")) {
-                // مسح بيانات الجلسة
-                localStorage.removeItem('loanFormAccess');
-                localStorage.removeItem('loanFormIP');
-                localStorage.removeItem('loginTime');
-                
-                // العودة لشاشة الوصول
-                document.getElementById('mainContainer').style.display = 'none';
-                document.getElementById('accessContainer').style.display = 'block';
-                
-                // إعادة تعيين رسالة الوصول
-                document.getElementById('accessMessage').innerHTML = `
-                    <i class="fas fa-info-circle"></i>
-                    <span>يتم التحقق من صلاحية الوصول...</span>
-                `;
-                document.getElementById('accessMessage').className = "access-message";
-                
-                showNotification("تم تسجيل الخروج بنجاح");
-            }
-        }
-        
-        // ==================== وظائف النموذج ====================
-        
         // نسخ قيمة حقل
         function copyFieldValue(fieldId) {
             const field = document.getElementById(fieldId);
@@ -1244,7 +778,7 @@
                 copyBtn.classList.remove('copied');
             }, 2000);
         }
-        
+
         // نسخ إلى الحافظة
         function copyToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
@@ -1257,7 +791,7 @@
                 fallbackCopyText(text);
             }
         }
-        
+
         // طريقة النسخ القديمة
         function fallbackCopyText(text) {
             const textArea = document.createElement("textarea");
@@ -1278,7 +812,7 @@
             
             document.body.removeChild(textArea);
         }
-        
+
         // نسخ جميع البيانات
         document.getElementById('copyAllBtn').addEventListener('click', function() {
             let allData = '=== ملخص بيانات طلب القرض ===\n\n';
@@ -1308,7 +842,7 @@
             
             copyToClipboard(allData);
         });
-        
+
         // إرسال النموذج
         document.getElementById('submitBtn').addEventListener('click', function() {
             // التحقق من الحقول المطلوبة
@@ -1336,7 +870,7 @@
                 showNotification('تم إرسال الطلب بنجاح خلال الوقت المحدد.');
             }, 1500);
         });
-        
+
         // إظهار الإشعارات
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
@@ -1356,8 +890,8 @@
                 notification.classList.remove('show');
             }, 3000);
         }
-        
-        // تهيئة الصفحة
+
+        // تهيئة النموذج
         document.addEventListener('DOMContentLoaded', function() {
             // تعيين التواريخ القصوى لتواريخ الولادة
             const today = new Date().toISOString().split('T')[0];
@@ -1375,18 +909,7 @@
                     this.style.borderColor = '#ddd';
                 });
             });
-            
-            // تحميل قائمة IPs المسموح بها من localStorage
-            const savedIPs = localStorage.getItem('allowedIPs');
-            if (savedIPs) {
-                allowedIPs = JSON.parse(savedIPs);
-            }
-            
-            // التحقق التلقائي من الوصول
-            autoCheckAccess();
         });
     </script>
 </body>
 </html>
-
-
