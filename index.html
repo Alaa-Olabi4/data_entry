@@ -751,6 +751,18 @@
                 </button>
             </div>
 
+            <!-- الحقل المضاف: رقم الهاتف في المعلومات الإضافية -->
+            <div class="field-row">
+                <div class="field-label"><i class="fas fa-phone"></i> رقم الهاتف</div>
+                <div class="field-input">
+                    <input type="tel" id="additionalPhone" placeholder="رقم الهاتف">
+                </div>
+                <div class="field-display hidden" id="additionalPhone-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('additionalPhone-display')">
+                    <i class="fas fa-copy"></i> نسخ
+                </button>
+            </div>
+
             <div class="field-row">
                 <div class="field-label"><i class="fas fa-phone-alt"></i> رقم الهاتف الثاني إن وجد</div>
                 <div class="field-input">
