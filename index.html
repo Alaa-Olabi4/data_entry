@@ -41,6 +41,98 @@
             margin-bottom: 10px;
         }
 
+        /* شريط التحكم */
+        .control-bar {
+            background: #2c3e50;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: #27ae60;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .saved-forms-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .saved-forms-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        #savedForms {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 2px solid #3498db;
+            background: white;
+            min-width: 250px;
+            font-size: 14px;
+        }
+
+        .saved-form-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.delete {
+            background: #e74c3c;
+        }
+
+        .action-btn.delete:hover {
+            background: #c0392b;
+        }
+
         .warning {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -53,7 +145,7 @@
 
         .form-content {
             padding: 30px;
-            max-height: calc(100vh - 200px);
+            max-height: calc(100vh - 250px);
             overflow-y: auto;
         }
 
@@ -109,6 +201,25 @@
             border-color: #3498db;
         }
 
+        /* نمط العرض (نص عادي) */
+        .field-display {
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 16px;
+            color: #2c3e50;
+            min-height: 46px;
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .field-display.empty {
+            color: #6c757d;
+            font-style: italic;
+        }
+
         .copy-btn {
             background: #3498db;
             color: white;
@@ -130,6 +241,10 @@
 
         .copy-btn.copied {
             background: #27ae60;
+        }
+
+        .copy-btn.hidden {
+            display: none;
         }
 
         .section-title {
@@ -173,6 +288,15 @@
             background: #219653;
         }
 
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
         .notification {
             position: fixed;
             top: 20px;
@@ -185,10 +309,120 @@
             transform: translateX(-150%);
             transition: transform 0.5s ease;
             z-index: 1000;
+            max-width: 400px;
+        }
+
+        .notification.error {
+            background: #e74c3c;
+        }
+
+        .notification.warning {
+            background: #f39c12;
         }
 
         .notification.show {
             transform: translateX(0);
+        }
+
+        /* قائمة النماذج المحفوظة */
+        .saved-list-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .saved-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .saved-list-title {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .saved-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .saved-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s;
+        }
+
+        .saved-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+        }
+
+        .saved-item-info {
+            flex: 1;
+        }
+
+        .saved-item-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .saved-item-details {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .saved-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .item-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .item-btn.view {
+            background: #3498db;
+            color: white;
+        }
+
+        .item-btn.view:hover {
+            background: #2980b9;
+        }
+
+        .item-btn.delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .item-btn.delete:hover {
+            background: #c0392b;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #6c757d;
+            padding: 30px;
+            font-style: italic;
         }
 
         @media (max-width: 768px) {
@@ -214,6 +448,35 @@
                 width: 100%;
                 justify-content: center;
             }
+            
+            .control-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .mode-toggle {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .mode-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .saved-forms-container {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            #savedForms {
+                width: 100%;
+            }
+            
+            .saved-form-actions {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -224,9 +487,39 @@
             <p>وضع التدريب مفعل: التسجيل مفتوح حالياً بدون قيود زمنية.</p>
         </div>
 
-        <div class="warning">
+        <!-- شريط التحكم -->
+        <div class="control-bar">
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="inputModeBtn" onclick="switchToInputMode()">
+                    <i class="fas fa-edit"></i> وضع الإدخال
+                </button>
+                <button class="mode-btn" id="viewModeBtn" onclick="switchToViewMode()">
+                    <i class="fas fa-eye"></i> وضع العرض
+                </button>
+            </div>
+
+            <!-- قائمة النماذج المحفوظة (تظهر فقط في وضع العرض) -->
+            <div class="saved-forms-container" id="savedFormsContainer" style="display: none;">
+                <div class="saved-forms-label">
+                    <i class="fas fa-history"></i> النماذج المحفوظة:
+                </div>
+                <select id="savedForms" onchange="loadSavedForm(this.value)">
+                    <option value="">اختر نموذج للعرض...</option>
+                </select>
+                <div class="saved-form-actions">
+                    <button class="action-btn" onclick="refreshSavedForms()">
+                        <i class="fas fa-sync-alt"></i> تحديث
+                    </button>
+                    <button class="action-btn delete" onclick="deleteSelectedForm()">
+                        <i class="fas fa-trash"></i> حذف
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning" id="warningMessage">
             <i class="fas fa-exclamation-triangle"></i>
-            <span>يرجى تصحيح الحقول المظللة باللون الأحمر قبل الإرسال.</span>
+            <span id="warningText">يرجى تصحيح الحقول المظللة باللون الأحمر قبل الإرسال.</span>
         </div>
 
         <div class="form-content" id="formContent">
@@ -242,7 +535,8 @@
                         <option value="other">محافظة اخرى</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('province')">
+                <div class="field-display hidden" id="province-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('province-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -257,7 +551,8 @@
                         <option value="karkh">فرع الكرخ</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('branch')">
+                <div class="field-display hidden" id="branch-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('branch-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -267,7 +562,8 @@
                 <div class="field-input">
                     <input type="text" id="firstName" placeholder="الاسم الاول">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('firstName')">
+                <div class="field-display hidden" id="firstName-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('firstName-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -277,7 +573,8 @@
                 <div class="field-input">
                     <input type="text" id="fatherName" placeholder="اسم الاب">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('fatherName')">
+                <div class="field-display hidden" id="fatherName-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('fatherName-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -287,7 +584,8 @@
                 <div class="field-input">
                     <input type="text" id="grandfatherName" placeholder="اسم الجد">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('grandfatherName')">
+                <div class="field-display hidden" id="grandfatherName-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('grandfatherName-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -297,7 +595,8 @@
                 <div class="field-input">
                     <input type="text" id="grandfatherFatherName" placeholder="اسم جد الاب">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('grandfatherFatherName')">
+                <div class="field-display hidden" id="grandfatherFatherName-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('grandfatherFatherName-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -307,7 +606,8 @@
                 <div class="field-input">
                     <input type="text" id="lastName" placeholder="اللقب">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('lastName')">
+                <div class="field-display hidden" id="lastName-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('lastName-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -317,7 +617,8 @@
                 <div class="field-input">
                     <input type="text" id="motherFirstName" placeholder="اسم الأم الاول">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('motherFirstName')">
+                <div class="field-display hidden" id="motherFirstName-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('motherFirstName-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -327,7 +628,8 @@
                 <div class="field-input">
                     <input type="text" id="motherFatherName" placeholder="اسم اب الأم">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('motherFatherName')">
+                <div class="field-display hidden" id="motherFatherName-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('motherFatherName-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -337,7 +639,8 @@
                 <div class="field-input">
                     <input type="text" id="motherGrandfatherName" placeholder="اسم جد الأم">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('motherGrandfatherName')">
+                <div class="field-display hidden" id="motherGrandfatherName-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('motherGrandfatherName-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -351,7 +654,8 @@
                         <option value="female">أنثى</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('gender')">
+                <div class="field-display hidden" id="gender-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('gender-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -361,7 +665,8 @@
                 <div class="field-input">
                     <input type="date" id="birthDate">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('birthDate')">
+                <div class="field-display hidden" id="birthDate-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('birthDate-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -371,7 +676,8 @@
                 <div class="field-input">
                     <input type="text" id="nationalEnergyNumber" placeholder="رقم الطاقة الوطنية">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('nationalEnergyNumber')">
+                <div class="field-display hidden" id="nationalEnergyNumber-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('nationalEnergyNumber-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -381,7 +687,8 @@
                 <div class="field-input">
                     <input type="tel" id="phoneNumber" placeholder="رقم الهاتف">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('phoneNumber')">
+                <div class="field-display hidden" id="phoneNumber-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('phoneNumber-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -394,7 +701,8 @@
                 <div class="field-input">
                     <input type="text" id="familyNumber" placeholder="الرقم العائلي">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('familyNumber')">
+                <div class="field-display hidden" id="familyNumber-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('familyNumber-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -404,7 +712,8 @@
                 <div class="field-input">
                     <input type="text" id="houseNumber" placeholder="رقم السكن">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('houseNumber')">
+                <div class="field-display hidden" id="houseNumber-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('houseNumber-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -414,7 +723,8 @@
                 <div class="field-input">
                     <input type="text" id="neighborhood" placeholder="اسم الحي">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('neighborhood')">
+                <div class="field-display hidden" id="neighborhood-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('neighborhood-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -424,7 +734,8 @@
                 <div class="field-input">
                     <input type="text" id="streetNumber" placeholder="رقم الشارع">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('streetNumber')">
+                <div class="field-display hidden" id="streetNumber-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('streetNumber-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -434,7 +745,8 @@
                 <div class="field-input">
                     <input type="text" id="buildingNumber" placeholder="رقم البناء">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('buildingNumber')">
+                <div class="field-display hidden" id="buildingNumber-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('buildingNumber-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -444,7 +756,8 @@
                 <div class="field-input">
                     <input type="tel" id="secondaryPhone" placeholder="رقم الهاتف الثاني">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('secondaryPhone')">
+                <div class="field-display hidden" id="secondaryPhone-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('secondaryPhone-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -454,7 +767,8 @@
                 <div class="field-input">
                     <input type="email" id="email" placeholder="البريد الإلكتروني">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('email')">
+                <div class="field-display hidden" id="email-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('email-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -468,7 +782,8 @@
                         <option value="employed">موظف</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('employmentStatus')">
+                <div class="field-display hidden" id="employmentStatus-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('employmentStatus-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -482,7 +797,8 @@
                         <option value="yes">نعم</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('martyrRelative')">
+                <div class="field-display hidden" id="martyrRelative-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('martyrRelative-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -496,7 +812,8 @@
                         <option value="yes">نعم</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('specialNeeds')">
+                <div class="field-display hidden" id="specialNeeds-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('specialNeeds-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -511,7 +828,8 @@
                         <option value="divorced">مطلق\ة</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('maritalStatus')">
+                <div class="field-display hidden" id="maritalStatus-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('maritalStatus-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -528,7 +846,8 @@
                         <option value="5">5</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('childrenUnder18')">
+                <div class="field-display hidden" id="childrenUnder18-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('childrenUnder18-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -542,7 +861,8 @@
                         <option value="36-70">36سنة الى 70سنة</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('applicantAge')">
+                <div class="field-display hidden" id="applicantAge-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('applicantAge-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -556,7 +876,8 @@
                         <option value="yes">نعم</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('ownHouse')">
+                <div class="field-display hidden" id="ownHouse-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('ownHouse-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -570,7 +891,8 @@
                         <option value="yes">نعم</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('bankAccount')">
+                <div class="field-display hidden" id="bankAccount-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('bankAccount-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -586,7 +908,8 @@
                         <option value="5000000">5000000</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('loanAmount')">
+                <div class="field-display hidden" id="loanAmount-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('loanAmount-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -600,7 +923,8 @@
                         <option value="yes">نعم</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('housingCard')">
+                <div class="field-display hidden" id="housingCard-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('housingCard-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -614,7 +938,8 @@
                         <option value="yes">نعم</option>
                     </select>
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('existingLoan')">
+                <div class="field-display hidden" id="existingLoan-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('existingLoan-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -627,7 +952,8 @@
                 <div class="field-input">
                     <input type="text" id="sellerName" placeholder="الاسم الرباعي واللقب للبائع">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('sellerName')">
+                <div class="field-display hidden" id="sellerName-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('sellerName-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -637,7 +963,8 @@
                 <div class="field-input">
                     <input type="text" id="pieceNumber" placeholder="رقم القطعة">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('pieceNumber')">
+                <div class="field-display hidden" id="pieceNumber-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('pieceNumber-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -647,7 +974,8 @@
                 <div class="field-input">
                     <input type="number" id="propertyArea" placeholder="مساحة شراء العقار(متر مربع)">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('propertyArea')">
+                <div class="field-display hidden" id="propertyArea-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('propertyArea-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -660,7 +988,8 @@
                 <div class="field-input">
                     <input type="text" id="guarantor1Name" placeholder="اسم الكفيل الرباعي">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('guarantor1Name')">
+                <div class="field-display hidden" id="guarantor1Name-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('guarantor1Name-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -670,7 +999,8 @@
                 <div class="field-input">
                     <input type="date" id="guarantor1BirthDate">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('guarantor1BirthDate')">
+                <div class="field-display hidden" id="guarantor1BirthDate-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('guarantor1BirthDate-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -680,7 +1010,8 @@
                 <div class="field-input">
                     <input type="text" id="guarantor1NationalId" placeholder="رقم البطاقة الوطنية">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('guarantor1NationalId')">
+                <div class="field-display hidden" id="guarantor1NationalId-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('guarantor1NationalId-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -690,7 +1021,8 @@
                 <div class="field-input">
                     <input type="text" id="guarantor1Workplace" placeholder="جهة العمل">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('guarantor1Workplace')">
+                <div class="field-display hidden" id="guarantor1Workplace-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('guarantor1Workplace-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -700,7 +1032,8 @@
                 <div class="field-input">
                     <input type="text" id="guarantor2Name" placeholder="اسم الكفيل الثالث(الرباعي)">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('guarantor2Name')">
+                <div class="field-display hidden" id="guarantor2Name-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('guarantor2Name-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -710,7 +1043,8 @@
                 <div class="field-input">
                     <input type="date" id="guarantor2BirthDate">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('guarantor2BirthDate')">
+                <div class="field-display hidden" id="guarantor2BirthDate-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('guarantor2BirthDate-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -720,7 +1054,8 @@
                 <div class="field-input">
                     <input type="text" id="guarantor2NationalId" placeholder="رقم البطاقة الوطنية">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('guarantor2NationalId')">
+                <div class="field-display hidden" id="guarantor2NationalId-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('guarantor2NationalId-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
@@ -730,19 +1065,39 @@
                 <div class="field-input">
                     <input type="text" id="guarantor2Workplace" placeholder="جهة العمل">
                 </div>
-                <button class="copy-btn" onclick="copyFieldValue('guarantor2Workplace')">
+                <div class="field-display hidden" id="guarantor2Workplace-display"></div>
+                <button class="copy-btn hidden" onclick="copyDisplayValue('guarantor2Workplace-display')">
                     <i class="fas fa-copy"></i> نسخ
                 </button>
             </div>
         </div>
 
-        <div class="form-actions">
+        <!-- أزرار الإجراءات (تتغير حسب الوضع) -->
+        <div class="form-actions" id="formActions">
             <button class="btn btn-success" id="submitBtn">
                 <i class="fas fa-paper-plane"></i> تأكيد وإرسال
             </button>
-            <button class="btn btn-success" id="copyAllBtn">
+            <button class="btn btn-warning" id="saveBtn">
+                <i class="fas fa-save"></i> حفظ النموذج
+            </button>
+            <button class="btn btn-success" id="copyAllBtn" style="display: none;">
                 <i class="fas fa-copy"></i> نسخ جميع البيانات
             </button>
+        </div>
+    </div>
+
+    <!-- قائمة النماذج المحفوظة (تظهر فقط في وضع العرض) -->
+    <div class="saved-list-container" id="savedListContainer" style="display: none;">
+        <div class="saved-list-header">
+            <div class="saved-list-title">
+                <i class="fas fa-list"></i> قائمة النماذج المحفوظة
+            </div>
+            <button class="action-btn" onclick="refreshSavedForms()">
+                <i class="fas fa-sync-alt"></i> تحديث القائمة
+            </button>
+        </div>
+        <div class="saved-list" id="savedList">
+            <!-- سيتم ملؤها بالبيانات -->
         </div>
     </div>
 
@@ -751,32 +1106,441 @@
     </div>
 
     <script>
-        // نسخ قيمة حقل
-        function copyFieldValue(fieldId) {
-            const field = document.getElementById(fieldId);
-            if (!field) return;
+        // حالة النظام
+        let currentMode = 'input'; // 'input' أو 'view'
+        let savedForms = [];
+        let currentFormId = null;
+
+        // تهيئة النظام
+        function initializeSystem() {
+            // تحميل النماذج المحفوظة
+            loadSavedForms();
             
-            let valueToCopy = '';
+            // تعيين التواريخ القصوى
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('birthDate').max = today;
+            document.getElementById('guarantor1BirthDate').max = today;
+            document.getElementById('guarantor2BirthDate').max = today;
             
-            if (field.tagName === 'SELECT') {
-                const selectedOption = field.options[field.selectedIndex];
-                valueToCopy = selectedOption.text;
+            // إضافة معالج الحدث للتصحيح التلقائي للأخطاء
+            document.querySelectorAll('input, select').forEach(field => {
+                field.addEventListener('input', function() {
+                    this.style.borderColor = '#ddd';
+                });
+                
+                field.addEventListener('change', function() {
+                    this.style.borderColor = '#ddd';
+                });
+            });
+            
+            // أحداث الأزرار
+            document.getElementById('submitBtn').addEventListener('click', submitForm);
+            document.getElementById('saveBtn').addEventListener('click', saveForm);
+            document.getElementById('copyAllBtn').addEventListener('click', copyAllData);
+            
+            // البدء بوضع الإدخال
+            switchToInputMode();
+        }
+
+        // التبديل لوضع الإدخال
+        function switchToInputMode() {
+            currentMode = 'input';
+            updateModeUI();
+            enableInputMode();
+        }
+
+        // التبديل لوضع العرض
+        function switchToViewMode() {
+            currentMode = 'view';
+            updateModeUI();
+            enableViewMode();
+        }
+
+        // تحديث واجهة الوضع
+        function updateModeUI() {
+            const inputBtn = document.getElementById('inputModeBtn');
+            const viewBtn = document.getElementById('viewModeBtn');
+            const savedContainer = document.getElementById('savedFormsContainer');
+            const savedListContainer = document.getElementById('savedListContainer');
+            
+            if (currentMode === 'input') {
+                inputBtn.classList.add('active');
+                viewBtn.classList.remove('active');
+                savedContainer.style.display = 'none';
+                savedListContainer.style.display = 'none';
+                document.getElementById('warningText').textContent = 'يرجى تصحيح الحقول المظللة باللون الأحمر قبل الإرسال.';
             } else {
-                valueToCopy = field.value;
+                inputBtn.classList.remove('active');
+                viewBtn.classList.add('active');
+                savedContainer.style.display = 'flex';
+                savedListContainer.style.display = 'block';
+                document.getElementById('warningText').textContent = 'وضع العرض: يمكنك عرض النماذج المحفوظة ونسخ البيانات.';
+            }
+        }
+
+        // تفعيل وضع الإدخال
+        function enableInputMode() {
+            // إظهار جميع حقول الإدخال وإخفاء عناصر العرض
+            document.querySelectorAll('.field-input').forEach(input => {
+                input.style.display = 'block';
+            });
+            
+            document.querySelectorAll('.field-display').forEach(display => {
+                display.classList.add('hidden');
+            });
+            
+            // تفعيل جميع الحقول
+            document.querySelectorAll('input, select').forEach(field => {
+                field.disabled = false;
+                field.readOnly = false;
+            });
+            
+            // إخفاء أزرار النسخ
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.classList.add('hidden');
+            });
+            
+            // تحديث أزرار الإجراءات
+            document.getElementById('submitBtn').style.display = 'flex';
+            document.getElementById('saveBtn').style.display = 'flex';
+            document.getElementById('copyAllBtn').style.display = 'none';
+            
+            // مسح النموذج الحالي
+            clearForm();
+            currentFormId = null;
+        }
+
+        // تفعيل وضع العرض
+        function enableViewMode() {
+            // إخفاء جميع حقول الإدخال وإظهار عناصر العرض
+            document.querySelectorAll('.field-input').forEach(input => {
+                input.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.field-display').forEach(display => {
+                display.classList.remove('hidden');
+            });
+            
+            // إظهار أزرار النسخ
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.classList.remove('hidden');
+            });
+            
+            // تحديث أزرار الإجراءات
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('copyAllBtn').style.display = 'flex';
+            
+            // تحديث قائمة النماذج المحفوظة
+            updateSavedFormsList();
+            
+            // تحديث عرض البيانات إذا كان هناك نموذج محمل
+            if (currentFormId) {
+                updateDisplayFields();
+            }
+        }
+
+        // تحديث حقول العرض بالبيانات
+        function updateDisplayFields() {
+            // تحديث جميع عناصر العرض
+            document.querySelectorAll('.field-display').forEach(display => {
+                const fieldId = display.id.replace('-display', '');
+                const inputField = document.getElementById(fieldId);
+                
+                if (inputField) {
+                    let displayValue = '';
+                    
+                    if (inputField.tagName === 'SELECT') {
+                        const selectedOption = inputField.options[inputField.selectedIndex];
+                        displayValue = selectedOption.text;
+                    } else {
+                        displayValue = inputField.value;
+                    }
+                    
+                    if (displayValue) {
+                        display.textContent = displayValue;
+                        display.classList.remove('empty');
+                    } else {
+                        display.textContent = '(فارغ)';
+                        display.classList.add('empty');
+                    }
+                }
+            });
+        }
+
+        // تحميل النماذج المحفوظة
+        function loadSavedForms() {
+            const saved = localStorage.getItem('loanForms');
+            if (saved) {
+                savedForms = JSON.parse(saved);
+            } else {
+                savedForms = [];
+            }
+            return savedForms;
+        }
+
+        // حفظ النموذج
+        function saveForm() {
+            // التحقق من الحقول المطلوبة
+            const requiredFields = document.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#e74c3c';
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
+                return;
             }
             
-            copyToClipboard(valueToCopy);
+            try {
+                // جمع البيانات
+                const formData = {};
+                const fields = document.querySelectorAll('input, select');
+                
+                fields.forEach(field => {
+                    if (field.id) {
+                        formData[field.id] = field.value;
+                    }
+                });
+                
+                // إنشاء معرف فريد للنموذج
+                const formId = 'form_' + Date.now();
+                const timestamp = new Date().toLocaleString('ar-EG');
+                
+                // إنشاء اسم للنموذج
+                const formName = `نموذج ${document.getElementById('firstName').value || 'غير مسمى'} - ${timestamp}`;
+                
+                // حفظ النموذج
+                const formToSave = {
+                    id: formId,
+                    name: formName,
+                    data: formData,
+                    timestamp: timestamp,
+                    created: new Date().toISOString()
+                };
+                
+                savedForms.push(formToSave);
+                localStorage.setItem('loanForms', JSON.stringify(savedForms));
+                
+                showNotification(`تم حفظ النموذج: ${formName}`);
+                
+                // مسح النموذج للبدء بآخر
+                clearForm();
+                
+            } catch (error) {
+                console.error('خطأ في حفظ النموذج:', error);
+                showNotification('فشل في حفظ النموذج', 'error');
+            }
+        }
+
+        // تحديث قائمة النماذج المحفوظة
+        function updateSavedFormsList() {
+            const savedList = document.getElementById('savedList');
+            const savedFormsSelect = document.getElementById('savedForms');
             
-            // تأثير مرئي
-            const copyBtn = event.currentTarget;
-            const originalText = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<i class="fas fa-check"></i> تم النسخ!';
-            copyBtn.classList.add('copied');
+            // تحديث القائمة المنسدلة
+            savedFormsSelect.innerHTML = '<option value="">اختر نموذج للعرض...</option>';
+            
+            if (savedForms.length === 0) {
+                savedList.innerHTML = '<div class="empty-message">لا توجد نماذج محفوظة بعد</div>';
+                return;
+            }
+            
+            // تحديث القائمة المنسدلة
+            savedForms.forEach(form => {
+                const option = document.createElement('option');
+                option.value = form.id;
+                option.textContent = form.name;
+                savedFormsSelect.appendChild(option);
+            });
+            
+            // تحديث القائمة التفصيلية
+            savedList.innerHTML = '';
+            savedForms.forEach(form => {
+                const item = document.createElement('div');
+                item.className = 'saved-item';
+                item.innerHTML = `
+                    <div class="saved-item-info">
+                        <div class="saved-item-name">${form.name}</div>
+                        <div class="saved-item-details">تم الحفظ: ${form.timestamp}</div>
+                    </div>
+                    <div class="saved-item-actions">
+                        <button class="item-btn view" onclick="loadFormById('${form.id}')">
+                            <i class="fas fa-eye"></i> عرض
+                        </button>
+                        <button class="item-btn delete" onclick="deleteFormById('${form.id}')">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                `;
+                savedList.appendChild(item);
+            });
+        }
+
+        // تحميل نموذج محفوظ
+        function loadSavedForm(formId) {
+            if (!formId) return;
+            loadFormById(formId);
+        }
+
+        // تحميل نموذج بواسطة المعرف
+        function loadFormById(formId) {
+            const form = savedForms.find(f => f.id === formId);
+            if (!form) {
+                showNotification('النموذج غير موجود', 'error');
+                return;
+            }
+            
+            // ملء الحقول
+            Object.keys(form.data).forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.value = form.data[fieldId];
+                }
+            });
+            
+            currentFormId = formId;
+            
+            // إذا كنا في وضع العرض، تحديث حقول العرض
+            if (currentMode === 'view') {
+                updateDisplayFields();
+            }
+            
+            showNotification(`تم تحميل النموذج: ${form.name}`);
+        }
+
+        // حذف النموذج المحدد
+        function deleteSelectedForm() {
+            const select = document.getElementById('savedForms');
+            const formId = select.value;
+            
+            if (!formId) {
+                showNotification('يرجى اختيار نموذج للحذف', 'warning');
+                return;
+            }
+            
+            deleteFormById(formId);
+        }
+
+        // حذف نموذج بواسطة المعرف
+        function deleteFormById(formId) {
+            if (!confirm('هل أنت متأكد من حذف هذا النموذج؟')) {
+                return;
+            }
+            
+            savedForms = savedForms.filter(f => f.id !== formId);
+            localStorage.setItem('loanForms', JSON.stringify(savedForms));
+            
+            if (currentFormId === formId) {
+                clearForm();
+                currentFormId = null;
+            }
+            
+            updateSavedFormsList();
+            showNotification('تم حذف النموذج بنجاح');
+        }
+
+        // تحديث قائمة النماذج
+        function refreshSavedForms() {
+            loadSavedForms();
+            updateSavedFormsList();
+            showNotification('تم تحديث قائمة النماذج');
+        }
+
+        // مسح النموذج الحالي
+        function clearForm() {
+            document.querySelectorAll('input, select').forEach(field => {
+                if (field.type !== 'button' && field.type !== 'submit') {
+                    field.value = '';
+                }
+            });
+            
+            // مسح حقول العرض أيضاً
+            document.querySelectorAll('.field-display').forEach(display => {
+                display.textContent = '';
+                display.classList.add('empty');
+            });
+        }
+
+        // نسخ قيمة من حقل العرض
+        function copyDisplayValue(displayId) {
+            const display = document.getElementById(displayId);
+            if (!display) return;
+            
+            const textToCopy = display.textContent.replace('(فارغ)', '').trim();
+            
+            if (textToCopy) {
+                copyToClipboard(textToCopy);
+                
+                // تأثير مرئي
+                const copyBtn = event.currentTarget;
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> تم النسخ!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            } else {
+                showNotification('لا يوجد نص للنسخ', 'warning');
+            }
+        }
+
+        // إرسال النموذج
+        function submitForm() {
+            // التحقق من الحقول المطلوبة
+            const requiredFields = document.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#e74c3c';
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
+                return;
+            }
+            
+            showNotification('جاري إرسال الطلب...');
             
             setTimeout(() => {
-                copyBtn.innerHTML = originalText;
-                copyBtn.classList.remove('copied');
-            }, 2000);
+                showNotification('تم إرسال الطلب بنجاح خلال الوقت المحدد.');
+            }, 1500);
+        }
+
+        // نسخ جميع البيانات
+        function copyAllData() {
+            let allData = '=== ملخص بيانات طلب القرض ===\n\n';
+            
+            const fieldRows = document.querySelectorAll('.field-row');
+            fieldRows.forEach(row => {
+                const label = row.querySelector('.field-label').textContent.replace('*', '').trim();
+                const display = row.querySelector('.field-display');
+                
+                if (display && !display.classList.contains('hidden')) {
+                    const value = display.textContent.replace('(فارغ)', '').trim();
+                    
+                    if (value) {
+                        allData += `${label}: ${value}\n`;
+                    }
+                }
+            });
+            
+            if (allData.trim() === '=== ملخص بيانات طلب القرض ===') {
+                showNotification('لا توجد بيانات للنسخ', 'warning');
+                return;
+            }
+            
+            copyToClipboard(allData);
         }
 
         // نسخ إلى الحافظة
@@ -813,75 +1577,18 @@
             document.body.removeChild(textArea);
         }
 
-        // نسخ جميع البيانات
-        document.getElementById('copyAllBtn').addEventListener('click', function() {
-            let allData = '=== ملخص بيانات طلب القرض ===\n\n';
-            
-            // جمع جميع الحقول
-            const fieldRows = document.querySelectorAll('.field-row');
-            fieldRows.forEach(row => {
-                const label = row.querySelector('.field-label').textContent.replace('*', '').trim();
-                const field = row.querySelector('input, select');
-                
-                if (field) {
-                    let value = '';
-                    
-                    if (field.tagName === 'SELECT') {
-                        const selectedOption = field.options[field.selectedIndex];
-                        value = selectedOption.text;
-                    } else {
-                        value = field.value;
-                    }
-                    
-                    if (value && value !== 'اختر المحافظة' && value !== 'اختر فرع' && 
-                        value !== 'اختر الجنس' && value !== 'الرجاء الاختيار') {
-                        allData += `${label}: ${value}\n`;
-                    }
-                }
-            });
-            
-            copyToClipboard(allData);
-        });
-
-        // إرسال النموذج
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            // التحقق من الحقول المطلوبة
-            const requiredFields = document.querySelectorAll('[required]');
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    field.style.borderColor = '#e74c3c';
-                    isValid = false;
-                } else {
-                    field.style.borderColor = '#ddd';
-                }
-            });
-            
-            if (!isValid) {
-                showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
-                return;
-            }
-            
-            // محاكاة إرسال النموذج
-            showNotification('جاري إرسال الطلب...');
-            
-            setTimeout(() => {
-                showNotification('تم إرسال الطلب بنجاح خلال الوقت المحدد.');
-            }, 1500);
-        });
-
         // إظهار الإشعارات
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             const notificationText = document.getElementById('notificationText');
             
             notificationText.textContent = message;
+            notification.className = "notification";
             
             if (type === 'error') {
-                notification.style.background = '#e74c3c';
-            } else {
-                notification.style.background = '#27ae60';
+                notification.classList.add('error');
+            } else if (type === 'warning') {
+                notification.classList.add('warning');
             }
             
             notification.classList.add('show');
@@ -891,25 +1598,8 @@
             }, 3000);
         }
 
-        // تهيئة النموذج
-        document.addEventListener('DOMContentLoaded', function() {
-            // تعيين التواريخ القصوى لتواريخ الولادة
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('birthDate').max = today;
-            document.getElementById('guarantor1BirthDate').max = today;
-            document.getElementById('guarantor2BirthDate').max = today;
-            
-            // إضافة معالج الحدث للتصحيح التلقائي للأخطاء
-            document.querySelectorAll('input, select').forEach(field => {
-                field.addEventListener('input', function() {
-                    this.style.borderColor = '#ddd';
-                });
-                
-                field.addEventListener('change', function() {
-                    this.style.borderColor = '#ddd';
-                });
-            });
-        });
+        // بدء التشغيل عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', initializeSystem);
     </script>
 </body>
 </html>
