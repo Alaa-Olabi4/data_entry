@@ -76,6 +76,14 @@
             background: #27ae60;
         }
 
+        .mode-btn.edit {
+            background: #f39c12;
+        }
+
+        .mode-btn.edit.active {
+            background: #e67e22;
+        }
+
         .mode-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -131,6 +139,14 @@
 
         .action-btn.delete:hover {
             background: #c0392b;
+        }
+
+        .action-btn.save {
+            background: #27ae60;
+        }
+
+        .action-btn.save:hover {
+            background: #219653;
         }
 
         .warning {
@@ -297,6 +313,15 @@
             background: #e67e22;
         }
 
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
         .notification {
             position: fixed;
             top: 20px;
@@ -409,6 +434,15 @@
             background: #2980b9;
         }
 
+        .item-btn.edit {
+            background: #f39c12;
+            color: white;
+        }
+
+        .item-btn.edit:hover {
+            background: #e67e22;
+        }
+
         .item-btn.delete {
             background: #e74c3c;
             color: white;
@@ -423,6 +457,28 @@
             color: #6c757d;
             padding: 30px;
             font-style: italic;
+        }
+
+        /* تحسينات لوضع التحرير */
+        .editing-info {
+            background: #e8f4fc;
+            padding: 15px 30px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border-right: 5px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editing-info-text {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .editing-actions {
+            display: flex;
+            gap: 10px;
         }
 
         @media (max-width: 768px) {
@@ -477,6 +533,17 @@
                 width: 100%;
                 justify-content: center;
             }
+            
+            .editing-info {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .editing-actions {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -493,12 +560,15 @@
                 <button class="mode-btn active" id="inputModeBtn" onclick="switchToInputMode()">
                     <i class="fas fa-edit"></i> وضع الإدخال
                 </button>
+                <button class="mode-btn" id="editModeBtn" onclick="switchToEditMode()">
+                    <i class="fas fa-edit"></i> وضع التحرير
+                </button>
                 <button class="mode-btn" id="viewModeBtn" onclick="switchToViewMode()">
                     <i class="fas fa-eye"></i> وضع العرض
                 </button>
             </div>
 
-            <!-- قائمة النماذج المحفوظة (تظهر فقط في وضع العرض) -->
+            <!-- قائمة النماذج المحفوظة (تظهر في وضع التحرير والعرض) -->
             <div class="saved-forms-container" id="savedFormsContainer" style="display: none;">
                 <div class="saved-forms-label">
                     <i class="fas fa-history"></i> النماذج المحفوظة:
@@ -514,6 +584,26 @@
                         <i class="fas fa-trash"></i> حذف
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- معلومات التحرير (تظهر فقط في وضع التحرير) -->
+        <div class="editing-info" id="editingInfo" style="display: none;">
+            <div class="editing-info-text">
+                <i class="fas fa-edit"></i> 
+                <span id="editingFormName">جارٍ تحرير نموذج: </span>
+                <span id="editingFormDate" style="font-size: 14px; color: #6c757d;"></span>
+            </div>
+            <div class="editing-actions">
+                <button class="action-btn save" onclick="saveEditedForm()">
+                    <i class="fas fa-save"></i> حفظ التغييرات
+                </button>
+                <button class="action-btn" onclick="saveAsNewForm()">
+                    <i class="fas fa-copy"></i> حفظ كنسخة جديدة
+                </button>
+                <button class="action-btn delete" onclick="cancelEditing()">
+                    <i class="fas fa-times"></i> إلغاء
+                </button>
             </div>
         </div>
 
@@ -1092,13 +1182,16 @@
             <button class="btn btn-warning" id="saveBtn">
                 <i class="fas fa-save"></i> حفظ النموذج
             </button>
+            <button class="btn btn-primary" id="updateBtn" style="display: none;">
+                <i class="fas fa-sync-alt"></i> تحديث النموذج
+            </button>
             <button class="btn btn-success" id="copyAllBtn" style="display: none;">
                 <i class="fas fa-copy"></i> نسخ جميع البيانات
             </button>
         </div>
     </div>
 
-    <!-- قائمة النماذج المحفوظة (تظهر فقط في وضع العرض) -->
+    <!-- قائمة النماذج المحفوظة (تظهر فقط في وضع التحرير والعرض) -->
     <div class="saved-list-container" id="savedListContainer" style="display: none;">
         <div class="saved-list-header">
             <div class="saved-list-title">
@@ -1119,9 +1212,10 @@
 
     <script>
         // حالة النظام
-        let currentMode = 'input'; // 'input' أو 'view'
+        let currentMode = 'input'; // 'input' أو 'edit' أو 'view'
         let savedForms = [];
         let currentFormId = null;
+        let editingFormId = null;
 
         // تهيئة النظام
         function initializeSystem() {
@@ -1148,6 +1242,7 @@
             // أحداث الأزرار
             document.getElementById('submitBtn').addEventListener('click', submitForm);
             document.getElementById('saveBtn').addEventListener('click', saveForm);
+            document.getElementById('updateBtn').addEventListener('click', updateForm);
             document.getElementById('copyAllBtn').addEventListener('click', copyAllData);
             
             // البدء بوضع الإدخال
@@ -1161,6 +1256,13 @@
             enableInputMode();
         }
 
+        // التبديل لوضع التحرير
+        function switchToEditMode() {
+            currentMode = 'edit';
+            updateModeUI();
+            enableEditMode();
+        }
+
         // التبديل لوضع العرض
         function switchToViewMode() {
             currentMode = 'view';
@@ -1171,21 +1273,34 @@
         // تحديث واجهة الوضع
         function updateModeUI() {
             const inputBtn = document.getElementById('inputModeBtn');
+            const editBtn = document.getElementById('editModeBtn');
             const viewBtn = document.getElementById('viewModeBtn');
             const savedContainer = document.getElementById('savedFormsContainer');
             const savedListContainer = document.getElementById('savedListContainer');
+            const editingInfo = document.getElementById('editingInfo');
             
+            // إعادة تعليم جميع الأزرار
+            inputBtn.classList.remove('active');
+            editBtn.classList.remove('active');
+            viewBtn.classList.remove('active');
+            
+            // إظهار/إخفاء العناصر حسب الوضع
             if (currentMode === 'input') {
                 inputBtn.classList.add('active');
-                viewBtn.classList.remove('active');
                 savedContainer.style.display = 'none';
                 savedListContainer.style.display = 'none';
+                editingInfo.style.display = 'none';
                 document.getElementById('warningText').textContent = 'يرجى تصحيح الحقول المظللة باللون الأحمر قبل الإرسال.';
+            } else if (currentMode === 'edit') {
+                editBtn.classList.add('active');
+                savedContainer.style.display = 'flex';
+                savedListContainer.style.display = 'block';
+                document.getElementById('warningText').textContent = 'وضع التحرير: يمكنك تحميل النماذج المحفوظة وتعديلها.';
             } else {
-                inputBtn.classList.remove('active');
                 viewBtn.classList.add('active');
                 savedContainer.style.display = 'flex';
                 savedListContainer.style.display = 'block';
+                editingInfo.style.display = 'none';
                 document.getElementById('warningText').textContent = 'وضع العرض: يمكنك عرض النماذج المحفوظة ونسخ البيانات.';
             }
         }
@@ -1215,11 +1330,50 @@
             // تحديث أزرار الإجراءات
             document.getElementById('submitBtn').style.display = 'flex';
             document.getElementById('saveBtn').style.display = 'flex';
+            document.getElementById('updateBtn').style.display = 'none';
             document.getElementById('copyAllBtn').style.display = 'none';
             
             // مسح النموذج الحالي
             clearForm();
             currentFormId = null;
+            editingFormId = null;
+        }
+
+        // تفعيل وضع التحرير
+        function enableEditMode() {
+            // إظهار جميع حقول الإدخال
+            document.querySelectorAll('.field-input').forEach(input => {
+                input.style.display = 'block';
+            });
+            
+            document.querySelectorAll('.field-display').forEach(display => {
+                display.classList.add('hidden');
+            });
+            
+            // تفعيل جميع الحقول
+            document.querySelectorAll('input, select').forEach(field => {
+                field.disabled = false;
+                field.readOnly = false;
+            });
+            
+            // إخفاء أزرار النسخ
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.classList.add('hidden');
+            });
+            
+            // تحديث أزرار الإجراءات
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('updateBtn').style.display = 'flex';
+            document.getElementById('copyAllBtn').style.display = 'none';
+            
+            // تحديث قائمة النماذج المحفوظة
+            updateSavedFormsList();
+            
+            // إخفاء معلومات التحرير إذا لم يكن هناك نموذج محمل
+            if (!editingFormId) {
+                document.getElementById('editingInfo').style.display = 'none';
+            }
         }
 
         // تفعيل وضع العرض
@@ -1241,10 +1395,14 @@
             // تحديث أزرار الإجراءات
             document.getElementById('submitBtn').style.display = 'none';
             document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('updateBtn').style.display = 'none';
             document.getElementById('copyAllBtn').style.display = 'flex';
             
             // تحديث قائمة النماذج المحفوظة
             updateSavedFormsList();
+            
+            // إخفاء معلومات التحرير
+            document.getElementById('editingInfo').style.display = 'none';
             
             // تحديث عرض البيانات إذا كان هناك نموذج محمل
             if (currentFormId) {
@@ -1291,7 +1449,7 @@
             return savedForms;
         }
 
-        // حفظ النموذج
+        // حفظ النموذج (للوضع الإدخال)
         function saveForm() {
             // التحقق من الحقول المطلوبة
             const requiredFields = document.querySelectorAll('[required]');
@@ -1350,6 +1508,152 @@
             }
         }
 
+        // تحديث النموذج (للوضع التحرير)
+        function updateForm() {
+            if (!editingFormId) {
+                showNotification('لم يتم تحميل نموذج للتحرير', 'error');
+                return;
+            }
+            
+            // التحقق من الحقول المطلوبة
+            const requiredFields = document.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#e74c3c';
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
+                return;
+            }
+            
+            try {
+                // جمع البيانات
+                const formData = {};
+                const fields = document.querySelectorAll('input, select');
+                
+                fields.forEach(field => {
+                    if (field.id) {
+                        formData[field.id] = field.value;
+                    }
+                });
+                
+                // البحث عن النموذج الحالي وتحديثه
+                const formIndex = savedForms.findIndex(f => f.id === editingFormId);
+                if (formIndex === -1) {
+                    showNotification('النموذج غير موجود', 'error');
+                    return;
+                }
+                
+                const timestamp = new Date().toLocaleString('ar-EG');
+                const formName = `نموذج ${document.getElementById('firstName').value || 'غير مسمى'} - ${timestamp} (محدث)`;
+                
+                // تحديث النموذج
+                savedForms[formIndex].name = formName;
+                savedForms[formIndex].data = formData;
+                savedForms[formIndex].timestamp = timestamp;
+                
+                localStorage.setItem('loanForms', JSON.stringify(savedForms));
+                
+                showNotification(`تم تحديث النموذج: ${formName}`);
+                
+                // تحديث قائمة النماذج
+                updateSavedFormsList();
+                
+            } catch (error) {
+                console.error('خطأ في تحديث النموذج:', error);
+                showNotification('فشل في تحديث النموذج', 'error');
+            }
+        }
+
+        // حفظ النموذج كنسخة جديدة (في وضع التحرير)
+        function saveAsNewForm() {
+            if (!editingFormId) {
+                showNotification('لم يتم تحميل نموذج للتحرير', 'error');
+                return;
+            }
+            
+            // التحقق من الحقول المطلوبة
+            const requiredFields = document.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#e74c3c';
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
+                return;
+            }
+            
+            try {
+                // جمع البيانات
+                const formData = {};
+                const fields = document.querySelectorAll('input, select');
+                
+                fields.forEach(field => {
+                    if (field.id) {
+                        formData[field.id] = field.value;
+                    }
+                });
+                
+                // إنشاء معرف فريد للنموذج الجديد
+                const newFormId = 'form_' + Date.now();
+                const timestamp = new Date().toLocaleString('ar-EG');
+                
+                // إنشاء اسم للنموذج الجديد
+                const formName = `نسخة من ${document.getElementById('firstName').value || 'غير مسمى'} - ${timestamp}`;
+                
+                // حفظ النموذج الجديد
+                const formToSave = {
+                    id: newFormId,
+                    name: formName,
+                    data: formData,
+                    timestamp: timestamp,
+                    created: new Date().toISOString()
+                };
+                
+                savedForms.push(formToSave);
+                localStorage.setItem('loanForms', JSON.stringify(savedForms));
+                
+                showNotification(`تم حفظ النموذج كنسخة جديدة: ${formName}`);
+                
+                // تحديث قائمة النماذج
+                updateSavedFormsList();
+                
+                // تحديث معرف النموذج الحالي للنسخة الجديدة
+                editingFormId = newFormId;
+                updateEditingInfo();
+                
+            } catch (error) {
+                console.error('خطأ في حفظ النموذج:', error);
+                showNotification('فشل في حفظ النموذج', 'error');
+            }
+        }
+
+        // حفظ النموذج المحرر
+        function saveEditedForm() {
+            if (confirm('هل تريد حفظ التغييرات على النموذج الحالي؟')) {
+                updateForm();
+            }
+        }
+
+        // إلغاء التحرير
+        function cancelEditing() {
+            if (confirm('هل تريد إلغاء التحرير؟ ستفقد جميع التغييرات غير المحفوظة.')) {
+                clearForm();
+                editingFormId = null;
+                document.getElementById('editingInfo').style.display = 'none';
+            }
+        }
+
         // تحديث قائمة النماذج المحفوظة
         function updateSavedFormsList() {
             const savedList = document.getElementById('savedList');
@@ -1368,6 +1672,9 @@
                 const option = document.createElement('option');
                 option.value = form.id;
                 option.textContent = form.name;
+                if (currentFormId === form.id || editingFormId === form.id) {
+                    option.selected = true;
+                }
                 savedFormsSelect.appendChild(option);
             });
             
@@ -1385,6 +1692,9 @@
                         <button class="item-btn view" onclick="loadFormById('${form.id}')">
                             <i class="fas fa-eye"></i> عرض
                         </button>
+                        <button class="item-btn edit" onclick="editFormById('${form.id}')">
+                            <i class="fas fa-edit"></i> تحرير
+                        </button>
                         <button class="item-btn delete" onclick="deleteFormById('${form.id}')">
                             <i class="fas fa-trash"></i> حذف
                         </button>
@@ -1397,10 +1707,15 @@
         // تحميل نموذج محفوظ
         function loadSavedForm(formId) {
             if (!formId) return;
-            loadFormById(formId);
+            
+            if (currentMode === 'edit') {
+                editFormById(formId);
+            } else {
+                loadFormById(formId);
+            }
         }
 
-        // تحميل نموذج بواسطة المعرف
+        // تحميل نموذج بواسطة المعرف (للعرض)
         function loadFormById(formId) {
             const form = savedForms.find(f => f.id === formId);
             if (!form) {
@@ -1424,6 +1739,43 @@
             }
             
             showNotification(`تم تحميل النموذج: ${form.name}`);
+        }
+
+        // تحرير نموذج بواسطة المعرف
+        function editFormById(formId) {
+            const form = savedForms.find(f => f.id === formId);
+            if (!form) {
+                showNotification('النموذج غير موجود', 'error');
+                return;
+            }
+            
+            // التحويل إلى وضع التحرير إذا لم نكن فيه
+            if (currentMode !== 'edit') {
+                switchToEditMode();
+            }
+            
+            // ملء الحقول
+            Object.keys(form.data).forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.value = form.data[fieldId];
+                }
+            });
+            
+            editingFormId = formId;
+            updateEditingInfo();
+            
+            showNotification(`تم تحميل النموذج للتحرير: ${form.name}`);
+        }
+
+        // تحديث معلومات التحرير
+        function updateEditingInfo() {
+            const form = savedForms.find(f => f.id === editingFormId);
+            if (!form) return;
+            
+            document.getElementById('editingFormName').textContent = `جارٍ تحرير نموذج: ${form.name}`;
+            document.getElementById('editingFormDate').textContent = `(تم الحفظ: ${form.timestamp})`;
+            document.getElementById('editingInfo').style.display = 'flex';
         }
 
         // حذف النموذج المحدد
@@ -1451,6 +1803,12 @@
             if (currentFormId === formId) {
                 clearForm();
                 currentFormId = null;
+            }
+            
+            if (editingFormId === formId) {
+                clearForm();
+                editingFormId = null;
+                document.getElementById('editingInfo').style.display = 'none';
             }
             
             updateSavedFormsList();
