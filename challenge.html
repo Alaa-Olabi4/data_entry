@@ -1,0 +1,3717 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>نموذج طلب القرض - ليرون</title>
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- إضافة Firebase SDK -->
+        <script
+            src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+        <script
+            src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+        <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            border-bottom: 5px solid #3498db;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        /* شريط التحكم */
+        .control-bar {
+            background: #2c3e50;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: #27ae60;
+        }
+
+        .mode-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .mode-btn:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* شريط مؤقت التحدي */
+        .challenge-bar {
+            background: linear-gradient(90deg, #e74c3c, #e67e22);
+            color: white;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #c0392b;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { background: linear-gradient(90deg, #e74c3c, #e67e22); }
+            50% { background: linear-gradient(90deg, #c0392b, #d35400); }
+            100% { background: linear-gradient(90deg, #e74c3c, #e67e22); }
+        }
+
+        .challenge-timer {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .challenge-timer.warning {
+            color: #f1c40f;
+        }
+
+        .challenge-timer.danger {
+            color: #ff6b6b;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .challenge-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .challenge-btn {
+            background: #fff;
+            color: #e74c3c;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .challenge-btn:hover {
+            background: #f1f1f1;
+            transform: translateY(-2px);
+        }
+
+        .saved-forms-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .saved-forms-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        #savedForms {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 2px solid #3498db;
+            background: white;
+            min-width: 250px;
+            font-size: 14px;
+        }
+
+        .saved-form-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.delete {
+            background: #e74c3c;
+        }
+
+        .action-btn.delete:hover {
+            background: #c0392b;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-content {
+            padding: 30px;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+
+        /* تصميم الصف الواحد */
+        .field-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .field-row:hover {
+            border-color: #3498db;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.1);
+        }
+
+        .field-label {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 200px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .field-input {
+            flex: 1;
+        }
+
+        .field-input input,
+        .field-input select,
+        .field-input textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .field-input input:focus,
+        .field-input select:focus,
+        .field-input textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        /* تصميم رفع الملفات بالسحب والإفلات */
+        .drop-zone {
+            width: 100%;
+            padding: 30px;
+            border: 3px dashed #3498db;
+            border-radius: 10px;
+            background: #f8f9fa;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .drop-zone:hover {
+            background: #e3f2fd;
+            border-color: #2980b9;
+        }
+
+        .drop-zone.dragover {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            transform: scale(1.02);
+        }
+
+        .drop-zone-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .drop-zone i {
+            font-size: 48px;
+            color: #3498db;
+        }
+
+        .drop-zone p {
+            color: #495057;
+            font-size: 16px;
+        }
+
+        .drop-zone small {
+            color: #6c757d;
+        }
+
+        .file-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .file-preview {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .file-preview:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .remove-file {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* نمط العرض (نص عادي) */
+        .field-display {
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 16px;
+            color: #2c3e50;
+            min-height: 46px;
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .field-display.empty {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .copy-btn.copied {
+            background: #27ae60;
+        }
+
+        .copy-btn.hidden {
+            display: none;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 22px;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            padding: 25px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #219653;
+        }
+
+        .btn-success:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* نافذة اختيار المستخدم */
+        .user-select-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .user-select-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .user-select-content h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .user-select-content p {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        #userSelect {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 15px 25px;
+            background: #27ae60;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateX(-150%);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .notification.error {
+            background: #e74c3c;
+        }
+
+        .notification.warning {
+            background: #f39c12;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* معاينة الصور */
+        .image-preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .image-preview-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+
+        .close-preview {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* قائمة النماذج المحفوظة */
+        .saved-list-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .saved-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .saved-list-title {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .saved-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .saved-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s;
+        }
+
+        .saved-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+        }
+
+        .saved-item-info {
+            flex: 1;
+        }
+
+        .saved-item-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .saved-item-details {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .saved-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .item-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .item-btn.view {
+            background: #3498db;
+            color: white;
+        }
+
+        .item-btn.view:hover {
+            background: #2980b9;
+        }
+
+        .item-btn.delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .item-btn.delete:hover {
+            background: #c0392b;
+        }
+
+        /* سجل التحديات */
+        .challenge-results {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .challenge-results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .challenge-results-title {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .challenge-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .challenge-table th {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: right;
+        }
+
+        .challenge-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .challenge-table tr:hover {
+            background: #f1f8ff;
+        }
+
+        .status-success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .status-failed {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .connection-status.online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .connection-status.offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .firebase-stats {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #bbdefb;
+        }
+
+        .firebase-stats h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .firebase-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .firebase-stat-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .firebase-stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .firebase-stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #6c757d;
+            padding: 30px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .field-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .field-label {
+                min-width: 100%;
+            }
+            
+            .copy-btn {
+                width: 100%;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .control-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .mode-toggle {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .mode-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .saved-forms-container {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            #savedForms {
+                width: 100%;
+            }
+            
+            .saved-form-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .challenge-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .challenge-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .firebase-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    </head>
+    <body>
+        <!-- نافذة اختيار المستخدم -->
+        <div class="user-select-modal" id="userSelectModal"
+            style="display: none;">
+            <div class="user-select-content">
+                <h2><i class="fas fa-user-check"></i> اختيار المستخدم</h2>
+                <p>يرجى اختيار اسمك من القائمة لبدء التحدي</p>
+                <select id="userSelect">
+                    <option value>اختر اسم المستخدم...</option>
+                    <!-- سيتم ملؤها بالكود -->
+                </select>
+                <button class="btn-primary" onclick="startSelectedChallenge()">
+                    <i class="fas fa-play-circle"></i> بدء التحدي
+                </button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="header">
+                <h1><i class="fas fa-file-contract"></i> نموذج طلب القرض -
+                    ليرون</h1>
+                <p id="headerMessage">وضع التدريب مفعل: التسجيل مفتوح حالياً
+                    بدون قيود زمنية.</p>
+                <p id="currentUser"
+                    style="margin-top: 5px; font-size: 14px; color: #bdc3c7;"></p>
+            </div>
+
+            <!-- شريط مؤقت التحدي (يظهر فقط عند تفعيل التحدي) -->
+            <div class="challenge-bar" id="challengeBar" style="display: none;">
+                <div class="challenge-timer" id="challengeTimer">
+                    <i class="fas fa-stopwatch"></i>
+                    <span id="timerDisplay">05:00</span>
+                    <span class="connection-status" id="firebaseStatus">
+                        <i class="fas fa-circle"></i> جاري الاتصال...
+                    </span>
+                </div>
+                <div class="challenge-info">
+                    <span id="challengeUserInfo"></span>
+                    <button class="challenge-btn" id="endChallengeBtn"
+                        onclick="endChallengeMode()">
+                        <i class="fas fa-stop-circle"></i> إنهاء التحدي
+                    </button>
+                </div>
+            </div>
+
+            <!-- شريط التحكم -->
+            <div class="control-bar">
+                <div class="mode-toggle">
+                    <button class="mode-btn" id="inputModeBtn"
+                        onclick="switchToInputMode()">
+                        <i class="fas fa-edit"></i> وضع الإدخال
+                    </button>
+                    <button class="mode-btn" id="viewModeBtn"
+                        onclick="switchToViewMode()">
+                        <i class="fas fa-eye"></i> وضع العرض
+                    </button>
+                    <button class="mode-btn" id="challengeModeBtn"
+                        onclick="showUserSelectModal()">
+                        <i class="fas fa-stopwatch"></i> وضع التحدي
+                    </button>
+                    <button class="mode-btn" id="resultsModeBtn"
+                        onclick="showChallengeResults()">
+                        <i class="fas fa-chart-bar"></i> سجل التحديات
+                    </button>
+                </div>
+
+                <!-- قائمة النماذج المحفوظة (تظهر فقط في وضع العرض) -->
+                <div class="saved-forms-container" id="savedFormsContainer"
+                    style="display: none;">
+                    <div class="saved-forms-label">
+                        <i class="fas fa-history"></i> النماذج المحفوظة:
+                    </div>
+                    <select id="savedForms"
+                        onchange="loadSavedForm(this.value)">
+                        <option value>اختر نموذج للعرض...</option>
+                    </select>
+                    <div class="saved-form-actions">
+                        <button class="action-btn"
+                            onclick="refreshSavedForms()">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                        <button class="action-btn delete"
+                            onclick="deleteSelectedForm()">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning" id="warningMessage">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="warningText">يرجى تصحيح الحقول المظللة باللون الأحمر
+                    قبل الإرسال.</span>
+            </div>
+
+            <!-- محتوى النموذج -->
+            <div class="form-content" id="formContent">
+                <!-- معلومات المقدم شخصياً -->
+                <h2 class="section-title"><i class="fas fa-user-circle"></i>
+                    معلومات المقدم شخصياً</h2>
+
+                <div class="field-row">
+                    <div class="field-label"><i
+                            class="fas fa-map-marker-alt"></i> المحافظة <span
+                            class="required">*</span></div>
+                    <div class="field-input">
+                        <select id="province">
+                            <option value>اختر المحافظة</option>
+                            <option value="baghdad">بغداد</option>
+                            <option value="other">محافظة أخرى</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="province-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('province-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-code-branch"></i>
+                        اختر فرع <span class="required">*</span></div>
+                    <div class="field-input">
+                        <select id="branch">
+                            <option value>اختر فرع</option>
+                            <option value="main">الفرع الرئيسي</option>
+                            <option value="rusafa">فرع الرصافة</option>
+                            <option value="karkh">فرع الكرخ</option>
+                            <option value="mansour">فرع المنصور</option>
+                            <option value="karrada">فرع الكرادة</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden" id="branch-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('branch-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-signature"></i>
+                        الاسم الاول <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="text" id="firstName"
+                            placeholder="الاسم الاول">
+                    </div>
+                    <div class="field-display hidden"
+                        id="firstName-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('firstName-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-user"></i> اسم
+                        الاب <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="text" id="fatherName"
+                            placeholder="اسم الاب">
+                    </div>
+                    <div class="field-display hidden"
+                        id="fatherName-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('fatherName-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-user"></i> اسم
+                        الجد <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="text" id="grandfatherName"
+                            placeholder="اسم الجد">
+                    </div>
+                    <div class="field-display hidden"
+                        id="grandfatherName-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('grandfatherName-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-user"></i> اسم جد
+                        الاب <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="text" id="grandfatherFatherName"
+                            placeholder="اسم جد الاب">
+                    </div>
+                    <div class="field-display hidden"
+                        id="grandfatherFatherName-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('grandfatherFatherName-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-tag"></i> اللقب
+                        <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="text" id="lastName" placeholder="اللقب">
+                    </div>
+                    <div class="field-display hidden"
+                        id="lastName-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('lastName-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-female"></i> اسم
+                        الأم الاول <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="text" id="motherFirstName"
+                            placeholder="اسم الأم الاول">
+                    </div>
+                    <div class="field-display hidden"
+                        id="motherFirstName-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('motherFirstName-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-user"></i> اسم اب
+                        الأم <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="text" id="motherFatherName"
+                            placeholder="اسم اب الأم">
+                    </div>
+                    <div class="field-display hidden"
+                        id="motherFatherName-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('motherFatherName-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-user"></i> اسم جد
+                        الأم <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="text" id="motherGrandfatherName"
+                            placeholder="اسم جد الأم">
+                    </div>
+                    <div class="field-display hidden"
+                        id="motherGrandfatherName-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('motherGrandfatherName-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-venus-mars"></i>
+                        الجنس <span class="required">*</span></div>
+                    <div class="field-input">
+                        <select id="gender">
+                            <option value>اختر الجنس</option>
+                            <option value="male">ذكر</option>
+                            <option value="female">أنثى</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden" id="gender-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('gender-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i
+                            class="fas fa-birthday-cake"></i> تاريخ الولادة
+                        <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="date" id="birthDate">
+                    </div>
+                    <div class="field-display hidden"
+                        id="birthDate-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('birthDate-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-id-card"></i> رقم
+                        الطاقة الوطنية <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="text" id="nationalEnergyNumber"
+                            placeholder="رقم الطاقة الوطنية">
+                    </div>
+                    <div class="field-display hidden"
+                        id="nationalEnergyNumber-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('nationalEnergyNumber-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-phone"></i> رقم
+                        الهاتف <span class="required">*</span></div>
+                    <div class="field-input">
+                        <input type="tel" id="phoneNumber"
+                            placeholder="رقم الهاتف">
+                    </div>
+                    <div class="field-display hidden"
+                        id="phoneNumber-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('phoneNumber-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <!-- معلومات اضافية -->
+                <h2 class="section-title"><i class="fas fa-info-circle"></i>
+                    معلومات اضافية</h2>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-hashtag"></i>
+                        الرقم العائلي</div>
+                    <div class="field-input">
+                        <input type="text" id="familyNumber"
+                            placeholder="الرقم العائلي">
+                    </div>
+                    <div class="field-display hidden"
+                        id="familyNumber-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('familyNumber-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-phone"></i> رقم
+                        الهاتف</div>
+                    <div class="field-input">
+                        <input type="tel" id="additionalPhone"
+                            placeholder="رقم الهاتف">
+                    </div>
+                    <div class="field-display hidden"
+                        id="additionalPhone-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('additionalPhone-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-phone-alt"></i>
+                        رقم الهاتف الثاني إن وجد</div>
+                    <div class="field-input">
+                        <input type="tel" id="secondaryPhone"
+                            placeholder="رقم الهاتف الثاني">
+                    </div>
+                    <div class="field-display hidden"
+                        id="secondaryPhone-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('secondaryPhone-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-envelope"></i>
+                        البريد الألكتروني</div>
+                    <div class="field-input">
+                        <input type="email" id="email"
+                            placeholder="البريد الألكتروني">
+                    </div>
+                    <div class="field-display hidden" id="email-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('email-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-briefcase"></i>
+                        موظف\غير موظف <span class="required">*</span></div>
+                    <div class="field-input">
+                        <select id="employmentStatus">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="unemployed">غير موظف</option>
+                            <option value="employed">موظف</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="employmentStatus-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('employmentStatus-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <!-- الاسئلة المطلوبة -->
+                <h2 class="section-title"><i class="fas fa-question-circle"></i>
+                    الاسئلة المطلوبة</h2>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-heart"></i> هل انت
+                        من ذوي الشهداء</div>
+                    <div class="field-input">
+                        <select id="martyrRelative">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="no">لا</option>
+                            <option value="yes">نعم</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="martyrRelative-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('martyrRelative-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-wheelchair"></i>
+                        هل انت من ذوي الاحتياجات الخاصة</div>
+                    <div class="field-input">
+                        <select id="specialNeeds">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="no">لا</option>
+                            <option value="yes">نعم</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="specialNeeds-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('specialNeeds-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-heart"></i> الحالة
+                        الاجتماعية <span class="required">*</span></div>
+                    <div class="field-input">
+                        <select id="maritalStatus">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="single">أعزب</option>
+                            <option value="married">متزوج\ة</option>
+                            <option value="divorced">مطلق\ة</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="maritalStatus-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('maritalStatus-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-child"></i> عدد
+                        الأولاد دون سن 18</div>
+                    <div class="field-input">
+                        <select id="childrenUnder18">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="childrenUnder18-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('childrenUnder18-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-user-clock"></i>
+                        العمر الخاص بطالب القرض</div>
+                    <div class="field-input">
+                        <select id="applicantAge">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="18-35">18سنة الى35سنة</option>
+                            <option value="36-70">36سنة الى 70سنة</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="applicantAge-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('applicantAge-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-home"></i> هل
+                        تمتلك وحدة سكنية</div>
+                    <div class="field-input">
+                        <select id="ownHouse">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="no">لا</option>
+                            <option value="yes">نعم</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="ownHouse-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('ownHouse-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-university"></i>
+                        هل تمتلك حساب في المصرف</div>
+                    <div class="field-input">
+                        <select id="bankAccount">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="no">لا</option>
+                            <option value="yes">نعم</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="bankAccount-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('bankAccount-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i
+                            class="fas fa-money-bill-wave"></i> مبلغ القرض
+                        المطلوب</div>
+                    <div class="field-input">
+                        <select id="loanAmount">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="1000000">1000000</option>
+                            <option value="2000000">2000000</option>
+                            <option value="3000000">3000000</option>
+                            <option value="5000000">5000000</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="loanAmount-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('loanAmount-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-address-card"></i>
+                        هل تمتلك بطاقة سكن في نفس المحافظة</div>
+                    <div class="field-input">
+                        <select id="housingCard">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="no">لا</option>
+                            <option value="yes">نعم</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="housingCard-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('housingCard-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-credit-card"></i>
+                        هل يوجد في ذمتك قرض سكني</div>
+                    <div class="field-input">
+                        <select id="existingLoan">
+                            <option value>الرجاء الاختيار</option>
+                            <option value="no">لا</option>
+                            <option value="yes">نعم</option>
+                        </select>
+                    </div>
+                    <div class="field-display hidden"
+                        id="existingLoan-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('existingLoan-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <!-- معلومات العقار -->
+                <h2 class="section-title"><i class="fas fa-home"></i> معلومات
+                    العقار</h2>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-user-tie"></i>
+                        الاسم الرباعي واللقب للبائع</div>
+                    <div class="field-input">
+                        <input type="text" id="sellerName"
+                            placeholder="الاسم الرباعي واللقب للبائع">
+                    </div>
+                    <div class="field-display hidden"
+                        id="sellerName-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('sellerName-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-hashtag"></i> رقم
+                        القطعة</div>
+                    <div class="field-input">
+                        <input type="text" id="pieceNumber"
+                            placeholder="رقم القطعة">
+                    </div>
+                    <div class="field-display hidden"
+                        id="pieceNumber-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('pieceNumber-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i
+                            class="fas fa-ruler-combined"></i> مساحة شراء
+                        العقار(متر مربع)</div>
+                    <div class="field-input">
+                        <input type="number" id="propertyArea"
+                            placeholder="مساحة شراء العقار(متر مربع)">
+                    </div>
+                    <div class="field-display hidden"
+                        id="propertyArea-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('propertyArea-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <!-- معلومات الكفيل -->
+                <h2 class="section-title"><i class="fas fa-user-friends"></i>
+                    معلومات الكفيل</h2>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-user"></i> اسم
+                        الكفيل الرباعي</div>
+                    <div class="field-input">
+                        <input type="text" id="guarantor1Name"
+                            placeholder="اسم الكفيل الرباعي">
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantor1Name-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantor1Name-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i
+                            class="fas fa-birthday-cake"></i> تاريخ
+                        الولادة</div>
+                    <div class="field-input">
+                        <input type="date" id="guarantor1BirthDate">
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantor1BirthDate-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantor1BirthDate-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-id-card"></i> رقم
+                        البطاقة الوطنية</div>
+                    <div class="field-input">
+                        <input type="text" id="guarantor1NationalId"
+                            placeholder="رقم البطاقة الوطنية">
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantor1NationalId-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantor1NationalId-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-building"></i> جهة
+                        العمل</div>
+                    <div class="field-input">
+                        <input type="text" id="guarantor1Workplace"
+                            placeholder="جهة العمل">
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantor1Workplace-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantor1Workplace-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-user"></i> اسم
+                        الكفيل الثالث(الرباعي)</div>
+                    <div class="field-input">
+                        <input type="text" id="guarantor2Name"
+                            placeholder="اسم الكفيل الثالث(الرباعي)">
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantor2Name-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantor2Name-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i
+                            class="fas fa-birthday-cake"></i> تاريخ
+                        الولادة</div>
+                    <div class="field-input">
+                        <input type="date" id="guarantor2BirthDate">
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantor2BirthDate-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantor2BirthDate-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-id-card"></i> رقم
+                        البطاقة الوطنية</div>
+                    <div class="field-input">
+                        <input type="text" id="guarantor2NationalId"
+                            placeholder="رقم البطاقة الوطنية">
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantor2NationalId-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantor2NationalId-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-building"></i> جهة
+                        العمل</div>
+                    <div class="field-input">
+                        <input type="text" id="guarantor2Workplace"
+                            placeholder="جهة العمل">
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantor2Workplace-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantor2Workplace-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <!-- المستندات المطلوبة -->
+                <h2 class="section-title"><i class="fas fa-images"></i>
+                    المستندات المطلوبة</h2>
+
+                <!-- مستمسكات المقترض -->
+                <h3
+                    style="color: #2c3e50; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 1px solid #3498db;">
+                    <i class="fas fa-user"></i> مستمسكات المقترض:
+                </h3>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-id-card"></i>
+                        البطاقة الوطنية (الوجه الأمامي) <span
+                            class="required">*</span></div>
+                    <div class="field-input">
+                        <div class="drop-zone"
+                            id="borrowerNationalIdFrontDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'borrowerNationalIdFrontFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت البطاقة الوطنية (الوجه الأمامي)
+                                    هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file"
+                                    id="borrowerNationalIdFrontInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'borrowerNationalIdFrontFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="borrowerNationalIdFrontPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="borrowerNationalIdFront-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('borrowerNationalIdFront-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-id-card"></i>
+                        البطاقة الوطنية (الوجه الخلفي) <span
+                            class="required">*</span></div>
+                    <div class="field-input">
+                        <div class="drop-zone"
+                            id="borrowerNationalIdBackDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'borrowerNationalIdBackFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت البطاقة الوطنية (الوجه الخلفي)
+                                    هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file"
+                                    id="borrowerNationalIdBackInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'borrowerNationalIdBackFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="borrowerNationalIdBackPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="borrowerNationalIdBack-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('borrowerNationalIdBack-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-home"></i> بطاقة
+                        سكن (الوجه الأمامي)</div>
+                    <div class="field-input">
+                        <div class="drop-zone"
+                            id="borrowerHousingCardFrontDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'borrowerHousingCardFrontFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت بطاقة سكن (الوجه الأمامي) هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file"
+                                    id="borrowerHousingCardFrontInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'borrowerHousingCardFrontFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="borrowerHousingCardFrontPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="borrowerHousingCardFront-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('borrowerHousingCardFront-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-home"></i> بطاقة
+                        سكن (الوجه الخلفي)</div>
+                    <div class="field-input">
+                        <div class="drop-zone"
+                            id="borrowerHousingCardBackDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'borrowerHousingCardBackFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت بطاقة سكن (الوجه الخلفي) هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file"
+                                    id="borrowerHousingCardBackInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'borrowerHousingCardBackFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="borrowerHousingCardBackPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="borrowerHousingCardBack-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('borrowerHousingCardBack-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <!-- مستمسكات الكفيل -->
+                <h3
+                    style="color: #2c3e50; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 1px solid #3498db;">
+                    <i class="fas fa-user-friends"></i> مستمسكات الكفيل:
+                </h3>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-id-card"></i>
+                        البطاقة الوطنية (الوجه الأمامي) <span
+                            class="required">*</span></div>
+                    <div class="field-input">
+                        <div class="drop-zone"
+                            id="guarantorNationalIdFrontDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'guarantorNationalIdFrontFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت البطاقة الوطنية (الوجه الأمامي)
+                                    للكفيل هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file"
+                                    id="guarantorNationalIdFrontInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'guarantorNationalIdFrontFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="guarantorNationalIdFrontPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantorNationalIdFront-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantorNationalIdFront-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-id-card"></i>
+                        البطاقة الوطنية (الوجه الخلفي) <span
+                            class="required">*</span></div>
+                    <div class="field-input">
+                        <div class="drop-zone"
+                            id="guarantorNationalIdBackDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'guarantorNationalIdBackFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت البطاقة الوطنية (الوجه الخلفي)
+                                    للكفيل هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file"
+                                    id="guarantorNationalIdBackInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'guarantorNationalIdBackFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="guarantorNationalIdBackPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantorNationalIdBack-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantorNationalIdBack-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-home"></i> بطاقة
+                        سكن (الوجه الأمامي)</div>
+                    <div class="field-input">
+                        <div class="drop-zone"
+                            id="guarantorHousingCardFrontDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'guarantorHousingCardFrontFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت بطاقة سكن (الوجه الأمامي) للكفيل
+                                    هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file"
+                                    id="guarantorHousingCardFrontInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'guarantorHousingCardFrontFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="guarantorHousingCardFrontPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantorHousingCardFront-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantorHousingCardFront-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-home"></i> بطاقة
+                        سكن (الوجه الخلفي)</div>
+                    <div class="field-input">
+                        <div class="drop-zone"
+                            id="guarantorHousingCardBackDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'guarantorHousingCardBackFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت بطاقة سكن (الوجه الخلفي) للكفيل
+                                    هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file"
+                                    id="guarantorHousingCardBackInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'guarantorHousingCardBackFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="guarantorHousingCardBackPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="guarantorHousingCardBack-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('guarantorHousingCardBack-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-briefcase"></i>
+                        هوية عمل (وجه امامي)</div>
+                    <div class="field-input">
+                        <div class="drop-zone" id="workIdFrontDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'workIdFrontFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت هوية عمل (وجه امامي) للكفيل
+                                    هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file" id="workIdFrontInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'workIdFrontFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="workIdFrontPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="workIdFront-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('workIdFront-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-briefcase"></i>
+                        هوية عمل (وجه خلفي)</div>
+                    <div class="field-input">
+                        <div class="drop-zone" id="workIdBackDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'workIdBackFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت هوية عمل (وجه خلفي) للكفيل هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file" id="workIdBackInput"
+                                    accept="image/*" style="display: none;"
+                                    onchange="handleFileSelect(this, 'workIdBackFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="workIdBackPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="workIdBack-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('workIdBack-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <!-- مستمسكات أخرى -->
+                <h3
+                    style="color: #2c3e50; margin: 25px 0 15px; padding-bottom: 8px; border-bottom: 1px solid #3498db;">
+                    <i class="fas fa-folder-open"></i> مستمسكات أخرى:
+                </h3>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-heart"></i> هوية
+                        مؤسسة الشهداء (اختياري)</div>
+                    <div class="field-input">
+                        <div class="drop-zone" id="martyrInstitutionIdDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'martyrInstitutionIdFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت هوية مؤسسة الشهداء هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file" id="martyrInstitutionIdInput"
+                                    accept="image/*,.pdf" style="display: none;"
+                                    onchange="handleFileSelect(this, 'martyrInstitutionIdFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="martyrInstitutionIdPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="martyrInstitutionId-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('martyrInstitutionId-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-wheelchair"></i>
+                        كتاب يؤيد نسبة الإعاقة (اختياري)</div>
+                    <div class="field-input">
+                        <div class="drop-zone" id="disabilityDocumentDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'disabilityDocumentFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت كتاب يؤيد نسبة الإعاقة هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file" id="disabilityDocumentInput"
+                                    accept="image/*,.pdf" style="display: none;"
+                                    onchange="handleFileSelect(this, 'disabilityDocumentFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="disabilityDocumentPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="disabilityDocument-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('disabilityDocument-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-label"><i class="fas fa-passport"></i>
+                        جواز سفر (اختياري)</div>
+                    <div class="field-input">
+                        <div class="drop-zone" id="passportDropZone"
+                            ondragover="handleDragOver(event)"
+                            ondragleave="handleDragLeave(event)"
+                            ondrop="handleDrop(event, 'passportFiles')">
+                            <div class="drop-zone-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>اسحب وأفلت جواز سفر هنا</p>
+                                <small>أو انقر لاختيار الملف</small>
+                                <input type="file" id="passportInput"
+                                    accept="image/*,.pdf" style="display: none;"
+                                    onchange="handleFileSelect(this, 'passportFiles')">
+                            </div>
+                        </div>
+                        <div class="file-preview-container"
+                            id="passportPreview"></div>
+                    </div>
+                    <div class="field-display hidden"
+                        id="passport-display"></div>
+                    <button class="copy-btn hidden"
+                        onclick="copyDisplayValue('passport-display')">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+            </div>
+
+            <!-- أزرار الإجراءات (تتغير حسب الوضع) -->
+            <div class="form-actions" id="formActions">
+                <button class="btn btn-success" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> تأكيد وإرسال
+                </button>
+                <button class="btn btn-warning" id="saveBtn">
+                    <i class="fas fa-save"></i> حفظ النموذج
+                </button>
+                <button class="btn btn-success" id="copyAllBtn"
+                    style="display: none;">
+                    <i class="fas fa-copy"></i> نسخ جميع البيانات
+                </button>
+                <button class="btn btn-danger" id="cancelChallengeBtn"
+                    style="display: none;" onclick="endChallengeMode()">
+                    <i class="fas fa-stop-circle"></i> إلغاء التحدي
+                </button>
+            </div>
+
+            <!-- قائمة النماذج المحفوظة (تظهر فقط في وضع العرض) -->
+            <div class="saved-list-container" id="savedListContainer"
+                style="display: none;">
+                <div class="saved-list-header">
+                    <div class="saved-list-title">
+                        <i class="fas fa-list"></i> قائمة النماذج المحفوظة
+                    </div>
+                    <button class="action-btn" onclick="refreshSavedForms()">
+                        <i class="fas fa-sync-alt"></i> تحديث القائمة
+                    </button>
+                </div>
+                <div class="saved-list" id="savedList">
+                    <!-- سيتم ملؤها بالبيانات -->
+                </div>
+            </div>
+
+            <!-- سجل نتائج التحديات -->
+            <div class="challenge-results" id="challengeResults"
+                style="display: none;">
+                <div class="challenge-results-header">
+                    <div class="challenge-results-title">
+                        <i class="fas fa-chart-bar"></i> سجل نتائج التحديات
+                    </div>
+                    <div>
+                        <button class="action-btn"
+                            onclick="refreshChallengeResults()">
+                            <i class="fas fa-sync-alt"></i> تحديث من السحابة
+                        </button>
+                    </div>
+                </div>
+                <div class="firebase-stats" id="firebaseStats">
+                    <!-- سيتم ملؤها بالإحصائيات -->
+                </div>
+                <div id="challengeResultsContent">
+                    <!-- سيتم ملؤها بالبيانات -->
+                </div>
+            </div>
+        </div>
+
+        <!-- نافذة معاينة الصور -->
+        <div class="image-preview-modal" id="imagePreviewModal">
+            <div class="close-preview" onclick="closeImagePreview()">
+                <i class="fas fa-times"></i>
+            </div>
+            <img id="previewImageLarge" src alt="معاينة الصورة">
+        </div>
+
+        <div class="notification" id="notification">
+            <span id="notificationText">تم النسخ إلى الحافظة!</span>
+        </div>
+
+        <script>
+            // ==================== إعدادات النظام ====================
+
+// حالة النظام
+let currentMode = 'input'; // 'input' أو 'view' أو 'results'
+let savedForms = [];
+let currentFormId = null;
+
+// إعدادات وضع التحدي
+const CHALLENGE_DURATION = 150; // 5 دقائق بالثواني (تعدل من هنا)
+let challengeMode = false;
+let challengeTimeLeft = CHALLENGE_DURATION;
+let challengeTimer = null;
+let currentUser = null;
+let challengeStartTime = null;
+let challengeResults = [];
+
+// تخزين الملفات - محدث ليتطابق مع حقول الموقع
+let uploadedFiles = {
+    // مستمسكات المقترض
+    borrowerNationalIdFrontFiles: [],
+    borrowerNationalIdBackFiles: [],
+    borrowerHousingCardFrontFiles: [],
+    borrowerHousingCardBackFiles: [],
+    
+    // مستمسكات الكفيل
+    guarantorNationalIdFrontFiles: [],
+    guarantorNationalIdBackFiles: [],
+    guarantorHousingCardFrontFiles: [],
+    guarantorHousingCardBackFiles: [],
+    workIdFrontFiles: [],
+    workIdBackFiles: [],
+    
+    // مستمسكات أخرى
+    martyrInstitutionIdFiles: [],
+    disabilityDocumentFiles: [],
+    passportFiles: []
+};
+
+// قائمة الأسماء المحددة مسبقاً
+const PREDEFINED_USERS = [
+    { id: 1, name: "Leen" },
+    { id: 2, name: "Alaa" },
+    { id: 3, name: "AbHamdan" },
+    { id: 4, name: "Marah" },
+    { id: 5, name: "Nancy" },
+    { id: 6, name: "Aous" },
+    { id: 7, name: "Sahar" },
+];
+
+// ==================== إعداد Firebase ====================
+
+// تكوين Firebase - قم بتغيير هذه القيم بإعدادات مشروعك
+const firebaseConfig = {
+    apiKey: "AIzaSyD3moWNEb0C3-rxTmwKB9a3plcB0oSTr04",
+    authDomain: "loan-challenge-system-a.firebaseapp.com",
+    projectId: "loan-challenge-system-a",
+    storageBucket: "loan-challenge-system-a.firebasestorage.app",
+    messagingSenderId: "346470957446",
+    appId: "1:346470957446:web:d2ca38e03cd909780dac07",
+    measurementId: "G-NC88T4GLFF"
+};
+
+// متغيرات Firebase
+let firebaseApp;
+let database;
+let isFirebaseConnected = false;
+
+// ==================== تهيئة النظام ====================
+
+function initializeSystem() {
+    // تهيئة Firebase
+    initializeFirebase();
+    
+    // تحميل البيانات المحفوظة
+    loadSavedForms();
+    loadChallengeResultsFromLocal();
+    populateUserSelect();
+    
+    // تعيين التواريخ القصوى
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('birthDate').max = today;
+    document.getElementById('guarantor1BirthDate').max = today;
+    document.getElementById('guarantor2BirthDate').max = today;
+    
+    // إعداد أحداث السحب والإفلات
+    setupDragAndDrop();
+    
+    // إضافة معالج الحدث للتصحيح التلقائي للأخطاء
+    document.querySelectorAll('input, select').forEach(field => {
+        field.addEventListener('input', function() {
+            this.style.borderColor = '#ddd';
+        });
+        
+        field.addEventListener('change', function() {
+            this.style.borderColor = '#ddd';
+        });
+    });
+    
+    // أحداث الأزرار
+    document.getElementById('submitBtn').addEventListener('click', submitForm);
+    document.getElementById('saveBtn').addEventListener('click', saveForm);
+    document.getElementById('copyAllBtn').addEventListener('click', copyAllData);
+    
+    // تحديث حالة الاتصال
+    updateConnectionStatus();
+    
+    // البدء بوضع الإدخال مع نموذج نظيف
+    clearForm();
+    switchToInputMode();
+}
+
+// ==================== إدارة Firebase ====================
+
+function initializeFirebase() {
+    try {
+        firebaseApp = firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        isFirebaseConnected = true;
+        
+        // مراقبة حالة الاتصال
+        const connectedRef = database.ref(".info/connected");
+        connectedRef.on("value", (snap) => {
+            isFirebaseConnected = snap.val() === true;
+            updateConnectionStatus();
+        });
+        
+        console.log("Firebase تم تهيئة بنجاح");
+    } catch (error) {
+        console.error("خطأ في تهيئة Firebase:", error);
+        isFirebaseConnected = false;
+        updateConnectionStatus();
+    }
+}
+
+function updateConnectionStatus() {
+    const statusElement = document.getElementById('firebaseStatus');
+    if (!statusElement) return;
+    
+    if (isFirebaseConnected) {
+        statusElement.innerHTML = '<i class="fas fa-circle" style="color: #27ae60;"></i> متصل بالسحابة';
+        statusElement.className = 'connection-status online';
+    } else {
+        statusElement.innerHTML = '<i class="fas fa-circle" style="color: #e74c3c;"></i> غير متصل';
+        statusElement.className = 'connection-status offline';
+    }
+}
+
+// ==================== إدارة وضع التحدي ====================
+
+function showUserSelectModal() {
+    // التأكد من مسح أي بيانات سابقة
+    clearForm();
+    document.getElementById('userSelectModal').style.display = 'flex';
+}
+
+function startSelectedChallenge() {
+    const userSelect = document.getElementById('userSelect');
+    const selectedUserId = userSelect.value;
+    
+    if (!selectedUserId) {
+        showNotification('يرجى اختيار اسم المستخدم', 'error');
+        return;
+    }
+    
+    const selectedUser = PREDEFINED_USERS.find(user => user.id == selectedUserId);
+    currentUser = selectedUser;
+    
+    // إغلاق النافذة
+    document.getElementById('userSelectModal').style.display = 'none';
+    
+    // بدء التحدي
+    startChallengeMode();
+}
+
+function startChallengeMode() {
+    if (challengeMode) return;
+    
+    // مسح أي بيانات سابقة من النموذج
+    clearForm();
+    
+    // إعادة تعيين الحقول والعناصر
+    resetFormForChallenge();
+    
+    if (!confirm(`سيبدأ وضع التحدي الآن. سيكون لديك ${formatTime(CHALLENGE_DURATION)} لإكمال النموذج وإرساله. هل أنت مستعد؟`)) {
+        return;
+    }
+    
+    challengeMode = true;
+    challengeTimeLeft = CHALLENGE_DURATION;
+    challengeStartTime = new Date();
+    
+    // تحديث الواجهة
+    document.getElementById('headerMessage').textContent = `وضع التحدي مفعل: ${currentUser.name} لديك ${formatTime(CHALLENGE_DURATION)} لإكمال النموذج وإرساله!`;
+    document.getElementById('currentUser').textContent = `المستخدم: ${currentUser.name}`;
+    document.getElementById('challengeBar').style.display = 'flex';
+    document.getElementById('cancelChallengeBtn').style.display = 'flex';
+    document.getElementById('challengeUserInfo').textContent = `المستخدم: ${currentUser.name}`;
+    
+    // تحديث الأزرار
+    document.getElementById('inputModeBtn').disabled = true;
+    document.getElementById('viewModeBtn').disabled = true;
+    document.getElementById('challengeModeBtn').disabled = true;
+    document.getElementById('resultsModeBtn').disabled = true;
+    document.getElementById('challengeModeBtn').classList.add('active');
+    
+    // التبديل لوضع الإدخال
+    switchToInputMode();
+    
+    // التأكد من أن النموذج نظيف
+    setTimeout(() => {
+        verifyFormIsClean();
+    }, 100);
+    
+    // بدء المؤقت
+    startChallengeTimer();
+    
+    showNotification(`بدأ وضع التحدي! ${currentUser.name} لديك ${formatTime(CHALLENGE_DURATION)} لإكمال النموذج وإرساله.`, 'warning');
+}
+
+function resetFormForChallenge() {
+    // إعادة تعيين جميع حقول الإدخال
+    document.querySelectorAll('input[type="text"], input[type="tel"], input[type="email"], input[type="date"], input[type="number"]').forEach(input => {
+        input.value = '';
+        input.style.borderColor = '#ddd';
+        input.classList.remove('invalid');
+    });
+    
+    // إعادة تعيين جميع حقول التحديد (select)
+    document.querySelectorAll('select').forEach(select => {
+        select.selectedIndex = 0;
+        select.style.borderColor = '#ddd';
+        select.classList.remove('invalid');
+    });
+    
+    // إعادة تعيين حقول النصوص الكبيرة
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.value = '';
+        textarea.style.borderColor = '#ddd';
+        textarea.classList.remove('invalid');
+    });
+    
+    // مسح جميع الملفات المرفوعة
+    uploadedFiles = {
+        borrowerNationalIdFrontFiles: [],
+        borrowerNationalIdBackFiles: [],
+        borrowerHousingCardFrontFiles: [],
+        borrowerHousingCardBackFiles: [],
+        guarantorNationalIdFrontFiles: [],
+        guarantorNationalIdBackFiles: [],
+        guarantorHousingCardFrontFiles: [],
+        guarantorHousingCardBackFiles: [],
+        workIdFrontFiles: [],
+        workIdBackFiles: [],
+        martyrInstitutionIdFiles: [],
+        disabilityDocumentFiles: [],
+        passportFiles: []
+    };
+    
+    // مسح معاينات الملفات
+    document.querySelectorAll('.file-preview-container').forEach(container => {
+        container.innerHTML = '';
+    });
+    
+    // إعادة تعيين حقول العرض
+    document.querySelectorAll('.field-display').forEach(display => {
+        display.textContent = '';
+        display.classList.add('empty');
+    });
+    
+    // إعادة تعيين حقول التواريخ لتكون اليوم كحد أقصى
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('birthDate').value = '';
+    document.getElementById('birthDate').max = today;
+    document.getElementById('guarantor1BirthDate').value = '';
+    document.getElementById('guarantor1BirthDate').max = today;
+    document.getElementById('guarantor2BirthDate').value = '';
+    document.getElementById('guarantor2BirthDate').max = today;
+    
+    // إزالة أي أخطاء مرئية
+    document.querySelectorAll('.error-message').forEach(error => {
+        error.remove();
+    });
+    
+    // إعادة تعيين أزرار النسخ
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.classList.add('hidden');
+        btn.innerHTML = '<i class="fas fa-copy"></i> نسخ';
+        btn.classList.remove('copied');
+    });
+    
+    // تمكين زر الإرسال
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-paper-plane"></i> تأكيد وإرسال';
+    
+    console.log('تم إعادة تعيين النموذج للتحدي الجديد');
+}
+
+function verifyFormIsClean() {
+    let hasValues = false;
+    
+    // التحقق من الحقول النصية
+    document.querySelectorAll('input[type="text"], input[type="tel"], input[type="email"], input[type="number"]').forEach(input => {
+        if (input.value.trim() !== '') {
+            console.log(`حقل ${input.id} يحتوي على قيمة: ${input.value}`);
+            hasValues = true;
+        }
+    });
+    
+    // التحقق من حقول التواريخ
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        if (input.value !== '') {
+            console.log(`حقل التاريخ ${input.id} يحتوي على قيمة: ${input.value}`);
+            hasValues = true;
+        }
+    });
+    
+    // التحقق من حقول التحديد
+    document.querySelectorAll('select').forEach(select => {
+        if (select.value !== '' && select.selectedIndex > 0) {
+            console.log(`حقل التحديد ${select.id} يحتوي على قيمة: ${select.value}`);
+            hasValues = true;
+        }
+    });
+    
+    // التحقق من الملفات المرفوعة
+    let totalFiles = 0;
+    for (const type in uploadedFiles) {
+        totalFiles += uploadedFiles[type].length;
+    }
+    
+    if (totalFiles > 0) {
+        console.log(`يوجد ${totalFiles} ملفات مرفوعة`);
+        hasValues = true;
+    }
+    
+    if (hasValues) {
+        console.warn('تحذير: النموذج لا يزال يحتوي على قيم بعد التنظيف!');
+        // إعادة تعيين إضافية إذا لزم الأمر
+        clearForm();
+    } else {
+        console.log('✓ النموذج نظيف وجاهز للتحدي');
+    }
+}
+
+function startChallengeTimer() {
+    updateTimerDisplay();
+    
+    challengeTimer = setInterval(function() {
+        challengeTimeLeft--;
+        updateTimerDisplay();
+        
+        if (challengeTimeLeft <= 0) {
+            endChallengeMode(true);
+            showNotification('انتهى وقت التحدي! لم يعد بالإمكان إرسال النموذج.', 'error');
+        } else if (challengeTimeLeft <= 60) {
+            // آخر دقيقة - تحذير
+            document.getElementById('challengeTimer').classList.add('danger');
+        } else if (challengeTimeLeft <= 120) {
+            // آخر دقيقتين - تنبيه
+            document.getElementById('challengeTimer').classList.add('warning');
+        }
+    }, 1000);
+}
+
+async function endChallengeMode(timeout = false) {
+    if (challengeTimer) {
+        clearInterval(challengeTimer);
+    }
+    
+    // تسجيل نتيجة التحدي
+    if (challengeMode && currentUser) {
+        const endTime = new Date();
+        const timeTaken = Math.round((endTime - challengeStartTime) / 1000);
+        const completed = checkIfFormCompleted();
+        const filesCount = countUploadedFiles();
+        
+        const challengeResult = {
+            id: 'challenge_' + Date.now(),
+            userId: currentUser.id,
+            userName: currentUser.name,
+            startTime: challengeStartTime.toISOString(),
+            endTime: endTime.toISOString(),
+            timeTaken: timeTaken,
+            completed: completed,
+            timeout: timeout,
+            filesUploaded: filesCount,
+            ipAddress: await getIPAddress(),
+            userAgent: navigator.userAgent,
+            timestamp: Date.now()
+        };
+        
+        // حفظ محلي
+        saveChallengeResultToLocal(challengeResult);
+        
+        // رفع إلى Firebase إذا كان متصلاً
+        if (isFirebaseConnected) {
+            saveChallengeResultToFirebase(challengeResult);
+        }
+        
+        // عرض نتيجة التحدي
+        if (timeout) {
+            showNotification(`انتهى وقت التحدي! ${currentUser.name} استغرق ${formatTime(timeTaken)} ولم يكمل النموذج.`, 'error');
+        } else {
+            const status = completed ? 'بنجاح' : 'بدون إكمال';
+            showNotification(`تم إنهاء التحدي! ${currentUser.name} استغرق ${formatTime(timeTaken)} وأكمل النموذج ${status}.`, completed ? 'success' : 'warning');
+        }
+    }
+    
+    challengeMode = false;
+    
+    // تحديث الواجهة
+    document.getElementById('headerMessage').textContent = 'وضع التدريب مفعل: التسجيل مفتوح حالياً بدون قيود زمنية.';
+    document.getElementById('currentUser').textContent = '';
+    document.getElementById('challengeBar').style.display = 'none';
+    document.getElementById('cancelChallengeBtn').style.display = 'none';
+    document.getElementById('challengeTimer').className = 'challenge-timer';
+    
+    // تحديث الأزرار
+    document.getElementById('inputModeBtn').disabled = false;
+    document.getElementById('viewModeBtn').disabled = false;
+    document.getElementById('challengeModeBtn').disabled = false;
+    document.getElementById('resultsModeBtn').disabled = false;
+    document.getElementById('challengeModeBtn').classList.remove('active');
+    
+    // إذا كان الوقت انتهى، تعطيل إرسال النموذج
+    if (timeout) {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-ban"></i> انتهى وقت التحدي';
+    }
+    
+    // مسح النموذج بعد انتهاء التحدي
+    clearForm();
+    
+    challengeTimeLeft = CHALLENGE_DURATION;
+    currentUser = null;
+}
+
+// ==================== إدارة السحب والإفلات ====================
+
+function setupDragAndDrop() {
+    // جعل مناطق السحب قابلة للنقر
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.addEventListener('click', function() {
+            const inputId = this.id.replace('DropZone', 'Input');
+            const inputElement = document.getElementById(inputId);
+            if (inputElement) {
+                inputElement.click();
+            }
+        });
+    });
+}
+
+function handleDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.classList.add('dragover');
+}
+
+function handleDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.classList.remove('dragover');
+}
+
+function handleDrop(event, fileType) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.classList.remove('dragover');
+    
+    const files = event.dataTransfer.files;
+    handleFiles(files, fileType);
+}
+
+function handleFileSelect(input, fileType) {
+    const files = input.files;
+    handleFiles(files, fileType);
+}
+
+function handleFiles(files, fileType) {
+    if (!files.length) return;
+    
+    // التحقق من عدد الملفات (حد أقصى 3 لكل نوع)
+    if (uploadedFiles[fileType].length + files.length > 3) {
+        showNotification('يمكنك رفع 3 ملفات كحد أقصى لكل نوع', 'error');
+        return;
+    }
+    
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // التحقق من حجم الملف (5MB كحد أقصى)
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification(`الملف ${file.name} كبير جداً. الحد الأقصى هو 5MB`, 'error');
+            continue;
+        }
+        
+        // التحقق من نوع الملف
+        if (!file.type.match('image.*') && !file.type.match('application/pdf')) {
+            showNotification(`الملف ${file.name} ليس صورة أو PDF`, 'error');
+            continue;
+        }
+        
+        // إضافة الملف إلى القائمة
+        uploadedFiles[fileType].push({
+            id: Date.now() + i,
+            file: file,
+            name: file.name,
+            size: formatFileSize(file.size),
+            type: file.type
+        });
+        
+        // عرض معاينة الملف
+        createFilePreview(file, fileType);
+    }
+    
+    showNotification(`تم رفع ${files.length} ملف(ـات) بنجاح`, 'success');
+}
+
+function createFilePreview(file, fileType) {
+    const previewContainer = document.getElementById(fileType + 'Preview');
+    const previewId = 'preview_' + Date.now();
+    
+    const preview = document.createElement('div');
+    preview.className = 'file-preview';
+    preview.id = previewId;
+    
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        if (file.type.match('image.*')) {
+            preview.innerHTML = `
+                <img src="${e.target.result}" alt="معاينة">
+                <div class="file-info">${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
+                <button class="remove-file" onclick="removeFile('${fileType}', '${previewId}', ${uploadedFiles[fileType].length - 1})">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            preview.onclick = function() {
+                openImagePreview(e.target.result);
+            };
+        } else {
+            preview.innerHTML = `
+                <div style="width:100%;height:100%;background:#3498db;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-file-pdf" style="font-size:48px;color:white;"></i>
+                </div>
+                <div class="file-info">${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
+                <button class="remove-file" onclick="removeFile('${fileType}', '${previewId}', ${uploadedFiles[fileType].length - 1})">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+        }
+    };
+    
+    reader.readAsDataURL(file);
+    previewContainer.appendChild(preview);
+}
+
+function removeFile(fileType, previewId, fileIndex) {
+    // إزالة الملف من القائمة
+    uploadedFiles[fileType].splice(fileIndex, 1);
+    
+    // إزالة المعاينة من DOM
+    const preview = document.getElementById(previewId);
+    if (preview) {
+        preview.remove();
+    }
+    
+    showNotification('تم حذف الملف', 'success');
+}
+
+function countUploadedFiles() {
+    let count = 0;
+    for (const type in uploadedFiles) {
+        count += uploadedFiles[type].length;
+    }
+    return count;
+}
+
+// ==================== إدارة النماذج والبيانات ====================
+
+function switchToInputMode() {
+    if (challengeMode && challengeTimeLeft <= 0) {
+        showNotification('انتهى وقت التحدي! لم يعد بالإمكان تعديل النموذج.', 'error');
+        return;
+    }
+    
+    // إذا كنا في وضع التحدي، التأكد من نظافة النموذج
+    if (challengeMode) {
+        // التأكد من مسح أي بيانات سابقة
+        setTimeout(() => {
+            verifyFormIsClean();
+        }, 50);
+    }
+    
+    currentMode = 'input';
+    updateModeUI();
+    enableInputMode();
+}
+
+function switchToViewMode() {
+    currentMode = 'view';
+    updateModeUI();
+    enableViewMode();
+}
+
+function showChallengeResults() {
+    currentMode = 'results';
+    updateModeUI();
+    enableResultsMode();
+}
+
+function updateModeUI() {
+    const inputBtn = document.getElementById('inputModeBtn');
+    const viewBtn = document.getElementById('viewModeBtn');
+    const challengeBtn = document.getElementById('challengeModeBtn');
+    const resultsBtn = document.getElementById('resultsModeBtn');
+    const savedContainer = document.getElementById('savedFormsContainer');
+    const savedListContainer = document.getElementById('savedListContainer');
+    const challengeResultsContainer = document.getElementById('challengeResults');
+    
+    // إعادة تعيين جميع الأزرار
+    inputBtn.classList.remove('active');
+    viewBtn.classList.remove('active');
+    challengeBtn.classList.remove('active');
+    resultsBtn.classList.remove('active');
+    
+    // إخفاء جميع الحاويات
+    savedContainer.style.display = 'none';
+    savedListContainer.style.display = 'none';
+    challengeResultsContainer.style.display = 'none';
+    
+    if (currentMode === 'input') {
+        inputBtn.classList.add('active');
+        document.getElementById('formContent').style.display = 'block';
+        document.getElementById('formActions').style.display = 'flex';
+        document.getElementById('warningText').textContent = 
+            challengeMode ? 
+            `وضع التحدي مفعل: ${currentUser.name} يرجى إكمال النموذج خلال ${formatTime(challengeTimeLeft)} المتبقية.` : 
+            'يرجى تصحيح الحقول المظللة باللون الأحمر قبل الإرسال.';
+    } else if (currentMode === 'view') {
+        viewBtn.classList.add('active');
+        savedContainer.style.display = 'flex';
+        savedListContainer.style.display = 'block';
+        document.getElementById('formContent').style.display = 'block';
+        document.getElementById('formActions').style.display = 'flex';
+        document.getElementById('warningText').textContent = 'وضع العرض: يمكنك عرض النماذج المحفوظة ونسخ البيانات.';
+    } else if (currentMode === 'results') {
+        resultsBtn.classList.add('active');
+        challengeResultsContainer.style.display = 'block';
+        document.getElementById('formContent').style.display = 'none';
+        document.getElementById('formActions').style.display = 'none';
+        document.getElementById('warningText').textContent = 'سجل نتائج التحديات: عرض إحصائيات جميع محاولات التحدي.';
+    }
+    
+    // تحديث زر التحدي إذا كان مفعلاً
+    if (challengeMode) {
+        challengeBtn.classList.add('active');
+    }
+}
+
+function enableInputMode() {
+    // إظهار جميع حقول الإدخال وإخفاء عناصر العرض
+    document.querySelectorAll('.field-input').forEach(input => {
+        input.style.display = 'block';
+    });
+    
+    document.querySelectorAll('.field-display').forEach(display => {
+        display.classList.add('hidden');
+    });
+    
+    // تفعيل/تعطيل الحقول حسب وضع التحدي
+    document.querySelectorAll('input, select').forEach(field => {
+        if (challengeMode && challengeTimeLeft <= 0) {
+            field.disabled = true;
+        } else {
+            field.disabled = false;
+        }
+        field.readOnly = false;
+    });
+    
+    // إخفاء أزرار النسخ
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.classList.add('hidden');
+    });
+    
+    // تحديث أزرار الإجراءات
+    document.getElementById('submitBtn').style.display = 'flex';
+    document.getElementById('saveBtn').style.display = 'flex';
+    document.getElementById('copyAllBtn').style.display = 'none';
+    document.getElementById('cancelChallengeBtn').style.display = challengeMode ? 'flex' : 'none';
+    
+    // تحديث حالة زر الإرسال حسب وضع التحدي
+    if (challengeMode && challengeTimeLeft <= 0) {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-ban"></i> انتهى وقت التحدي';
+    } else {
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-paper-plane"></i> تأكيد وإرسال';
+    }
+    
+    // إذا كان في وضع التحدي، إضافة تنبيه بأن النموذج نظيف
+    if (challengeMode) {
+        showNotification('النموذج نظيف وجاهز للتحدي. ابدأ بتعبئة البيانات!', 'success');
+    }
+}
+
+function enableViewMode() {
+    // إخفاء جميع حقول الإدخال وإظهار عناصر العرض
+    document.querySelectorAll('.field-input').forEach(input => {
+        input.style.display = 'none';
+    });
+    
+    document.querySelectorAll('.field-display').forEach(display => {
+        display.classList.remove('hidden');
+    });
+    
+    // إظهار أزرار النسخ
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.classList.remove('hidden');
+    });
+    
+    // تحديث أزرار الإجراءات
+    document.getElementById('submitBtn').style.display = 'none';
+    document.getElementById('saveBtn').style.display = 'none';
+    document.getElementById('copyAllBtn').style.display = 'flex';
+    document.getElementById('cancelChallengeBtn').style.display = 'none';
+    
+    // تحديث قائمة النماذج المحفوظة
+    updateSavedFormsList();
+    
+    // تحديث عرض البيانات إذا كان هناك نموذج محمل
+    if (currentFormId) {
+        updateDisplayFields();
+    }
+}
+
+function enableResultsMode() {
+    // عرض نتائج التحديات من Firebase
+    loadChallengeResultsFromFirebase();
+}
+
+// ==================== إدارة البيانات المحفوظة ====================
+
+function loadSavedForms() {
+    const saved = localStorage.getItem('loanForms');
+    if (saved) {
+        savedForms = JSON.parse(saved);
+    } else {
+        savedForms = [];
+    }
+    return savedForms;
+}
+
+function saveForm() {
+    // في وضع التحدي، لا يمكن الحفظ إلا قبل انتهاء الوقت
+    if (challengeMode && challengeTimeLeft <= 0) {
+        showNotification('انتهى وقت التحدي! لا يمكن حفظ النموذج.', 'error');
+        return;
+    }
+    
+    // التحقق من الحقول المطلوبة
+    if (!validateForm()) {
+        return;
+    }
+    
+    try {
+        // جمع البيانات
+        const formData = {};
+        const fields = document.querySelectorAll('input, select, textarea');
+        
+        fields.forEach(field => {
+            if (field.id) {
+                formData[field.id] = field.value;
+            }
+        });
+        
+        // إضافة معلومات الملفات
+        formData.uploadedFiles = countUploadedFiles();
+        
+        // إنشاء معرف فريد للنموذج
+        const formId = 'form_' + Date.now();
+        const timestamp = new Date().toLocaleString('ar-EG');
+        
+        // إنشاء اسم للنموذج
+        const formName = `نموذج ${document.getElementById('firstName').value || 'غير مسمى'} - ${timestamp}`;
+        
+        // حفظ النموذج
+        const formToSave = {
+            id: formId,
+            name: formName,
+            data: formData,
+            timestamp: timestamp,
+            created: new Date().toISOString(),
+            challengeMode: challengeMode,
+            userName: challengeMode ? currentUser?.name : null
+        };
+        
+        savedForms.push(formToSave);
+        localStorage.setItem('loanForms', JSON.stringify(savedForms));
+        
+        showNotification(`تم حفظ النموذج: ${formName}`);
+        
+        // إذا كان في وضع التحدي، إنهاء التحدي بعد الحفظ
+        if (challengeMode) {
+            setTimeout(() => {
+                endChallengeMode(false);
+                showNotification('تم إنهاء التحدي بنجاح بعد حفظ النموذج!');
+            }, 1000);
+        }
+        
+        // مسح النموذج للبدء بآخر
+        clearForm();
+        
+    } catch (error) {
+        console.error('خطأ في حفظ النموذج:', error);
+        showNotification('فشل في حفظ النموذج', 'error');
+    }
+}
+
+// ==================== إدارة نتائج التحدي ====================
+
+function saveChallengeResultToLocal(result) {
+    challengeResults.push(result);
+    localStorage.setItem('challengeResults', JSON.stringify(challengeResults));
+}
+
+function loadChallengeResultsFromLocal() {
+    const saved = localStorage.getItem('challengeResults');
+    if (saved) {
+        challengeResults = JSON.parse(saved);
+    } else {
+        challengeResults = [];
+    }
+    return challengeResults;
+}
+
+function saveChallengeResultToFirebase(result) {
+    if (!isFirebaseConnected) {
+        console.warn('Firebase غير متصل، سيتم حفظ النتيجة محلياً فقط');
+        return;
+    }
+    
+    try {
+        const resultsRef = database.ref('challengeResults');
+        const newResultRef = resultsRef.push();
+        newResultRef.set(result)
+            .then(() => {
+                console.log('تم رفع نتيجة التحدي إلى Firebase');
+            })
+            .catch((error) => {
+                console.error('فشل رفع نتيجة التحدي إلى Firebase:', error);
+            });
+    } catch (error) {
+        console.error('خطأ في الاتصال بـ Firebase:', error);
+    }
+}
+
+async function loadChallengeResultsFromFirebase() {
+    const container = document.getElementById('challengeResultsContent');
+    const statsContainer = document.getElementById('firebaseStats');
+    
+    container.innerHTML = '<div class="empty-message">جاري تحميل النتائج من السحابة...</div>';
+    
+    if (!isFirebaseConnected) {
+        // عرض النتائج المحلية إذا لم يكن هناك اتصال
+        challengeResults = loadChallengeResultsFromLocal();
+        displayChallengeResults();
+        showNotification('غير متصل بالسحابة، يتم عرض النتائج المحلية فقط', 'warning');
+        return;
+    }
+    
+    try {
+        const resultsRef = database.ref('challengeResults');
+        resultsRef.once('value')
+            .then((snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // تحويل الكائن إلى مصفوفة
+                    const resultsArray = Object.keys(data).map(key => ({
+                        firebaseId: key,
+                        ...data[key]
+                    }));
+                    
+                    challengeResults = resultsArray;
+                    
+                    // تحديث الإحصائيات
+                    displayFirebaseStats(resultsArray);
+                    
+                    // عرض النتائج
+                    displayChallengeResults();
+                    
+                    showNotification(`تم تحميل ${resultsArray.length} نتيجة من السحابة`, 'success');
+                } else {
+                    container.innerHTML = '<div class="empty-message">لا توجد نتائج تحدي مسجلة في السحابة بعد</div>';
+                    statsContainer.innerHTML = '';
+                }
+            })
+            .catch((error) => {
+                console.error('خطأ في تحميل النتائج من Firebase:', error);
+                container.innerHTML = '<div class="empty-message">فشل تحميل النتائج من السحابة</div>';
+                statsContainer.innerHTML = '';
+            });
+    } catch (error) {
+        console.error('خطأ في الاتصال بـ Firebase:', error);
+        container.innerHTML = '<div class="empty-message">خطأ في الاتصال بالسحابة</div>';
+        statsContainer.innerHTML = '';
+    }
+}
+
+function displayFirebaseStats(results) {
+    const statsContainer = document.getElementById('firebaseStats');
+    
+    if (!results || results.length === 0) {
+        statsContainer.innerHTML = '<h4>لا توجد إحصائيات متاحة</h4>';
+        return;
+    }
+    
+    // حساب الإحصائيات
+    const totalAttempts = results.length;
+    const completedAttempts = results.filter(r => r.completed).length;
+    const successRate = totalAttempts > 0 ? Math.round((completedAttempts / totalAttempts) * 100) : 0;
+    
+    const totalTime = results.reduce((sum, result) => sum + (result.timeTaken || 0), 0);
+    const averageTime = totalAttempts > 0 ? Math.round(totalTime / totalAttempts) : 0;
+    
+    // العثور على أفضل أداء
+    const successfulResults = results.filter(r => r.completed && !r.timeout);
+    let bestUser = 'لا يوجد';
+    let bestTime = Infinity;
+    
+    if (successfulResults.length > 0) {
+        successfulResults.forEach(result => {
+            if (result.timeTaken < bestTime) {
+                bestTime = result.timeTaken;
+                bestUser = result.userName;
+            }
+        });
+    }
+    
+    statsContainer.innerHTML = `
+        <h4><i class="fas fa-chart-line"></i> إحصائيات التحدي من السحابة</h4>
+        <div class="firebase-stats-grid">
+            <div class="firebase-stat-item">
+                <div class="firebase-stat-value">${totalAttempts}</div>
+                <div class="firebase-stat-label">إجمالي المحاولات</div>
+            </div>
+            <div class="firebase-stat-item">
+                <div class="firebase-stat-value">${successRate}%</div>
+                <div class="firebase-stat-label">نسبة النجاح</div>
+            </div>
+            <div class="firebase-stat-item">
+                <div class="firebase-stat-value">${formatTime(averageTime)}</div>
+                <div class="firebase-stat-label">متوسط الوقت</div>
+            </div>
+            <div class="firebase-stat-item">
+                <div class="firebase-stat-value">${bestUser === 'لا يوجد' ? bestUser : bestUser.substring(0, 10)}</div>
+                <div class="firebase-stat-label">أفضل أداء</div>
+            </div>
+        </div>
+    `;
+}
+
+function displayChallengeResults() {
+    const container = document.getElementById('challengeResultsContent');
+    
+    if (!challengeResults || challengeResults.length === 0) {
+        container.innerHTML = '<div class="empty-message">لا توجد نتائج تحدي مسجلة بعد</div>';
+        return;
+    }
+    
+    let html = `
+        <table class="challenge-table">
+            <thead>
+                <tr>
+                    <th>المستخدم</th>
+                    <th>تاريخ البدء</th>
+                    <th>الوقت المستغرق</th>
+                    <th>الحالة</th>
+                    <th>الملفات</th>
+                    <th>الإكمال</th>
+                    <th>عنوان IP</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    // عرض النتائج من الأحدث إلى الأقدم
+    const sortedResults = [...challengeResults].sort((a, b) => 
+        (b.timestamp || 0) - (a.timestamp || 0)
+    );
+    
+    sortedResults.forEach(result => {
+        let startDate;
+        try {
+            startDate = new Date(result.startTime);
+        } catch {
+            startDate = new Date();
+        }
+        const formattedDate = startDate.toLocaleString('ar-EG');
+        
+        // تقصير عنوان IP لعرضه بشكل أنيق
+        let ipDisplay = result.ipAddress || 'غير معروف';
+        if (ipDisplay.length > 15) {
+            ipDisplay = ipDisplay.substring(0, 12) + '...';
+        }
+        
+        html += `
+            <tr>
+                <td>${result.userName || 'غير معروف'}</td>
+                <td>${formattedDate}</td>
+                <td>${formatTime(result.timeTaken || 0)}</td>
+                <td>
+                    <span class="${result.timeout ? 'status-failed' : 'status-success'}">
+                        ${result.timeout ? 'انتهى الوقت' : 'مكتمل'}
+                    </span>
+                </td>
+                <td>${result.filesUploaded || 0} ملفات</td>
+                <td>
+                    <span class="${result.completed ? 'status-success' : 'status-failed'}">
+                        ${result.completed ? 'نعم ✓' : 'لا ✗'}
+                    </span>
+                </td>
+                <td title="${result.ipAddress || ''}">${ipDisplay}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+        <div style="margin-top: 15px; text-align: center; color: #6c757d; font-size: 14px;">
+            إجمالي ${challengeResults.length} محاولة تحدي مسجلة
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+function refreshChallengeResults() {
+    loadChallengeResultsFromFirebase();
+    showNotification('جاري تحديث النتائج من السحابة...');
+}
+
+// ==================== وظائف مساعدة ====================
+
+async function getIPAddress() {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.error('فشل الحصول على عنوان IP:', error);
+        return 'غير معروف';
+    }
+}
+
+function populateUserSelect() {
+    const select = document.getElementById('userSelect');
+    select.innerHTML = '<option value="">اختر اسم المستخدم...</option>';
+    PREDEFINED_USERS.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = user.name;
+        select.appendChild(option);
+    });
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function updateTimerDisplay() {
+    document.getElementById('timerDisplay').textContent = formatTime(challengeTimeLeft);
+}
+
+function checkIfFormCompleted() {
+    // التحقق من الحقول المطلوبة
+    const requiredFields = document.querySelectorAll('[required]');
+    for (const field of requiredFields) {
+        if (!field.value.trim()) {
+            return false;
+        }
+    }
+    
+    // التحقق من الملفات المطلوبة في وضع التحدي
+    if (challengeMode) {
+        // التحقق من مستمسكات المقترض المطلوبة
+        if (uploadedFiles.borrowerNationalIdFrontFiles.length === 0 || 
+            uploadedFiles.borrowerNationalIdBackFiles.length === 0) {
+            return false;
+        }
+        
+        // التحقق من مستمسكات الكفيل المطلوبة
+        if (uploadedFiles.guarantorNationalIdFrontFiles.length === 0 || 
+            uploadedFiles.guarantorNationalIdBackFiles.length === 0) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+function validateForm() {
+    const requiredFields = document.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.style.borderColor = '#e74c3c';
+            isValid = false;
+        }
+    });
+    
+    // التحقق من الملفات المطلوبة في وضع التحدي
+    if (challengeMode) {
+        if (uploadedFiles.borrowerNationalIdFrontFiles.length === 0) {
+            showNotification('يرجى رفع البطاقة الوطنية (الوجه الأمامي) للمقترض', 'error');
+            isValid = false;
+        }
+        if (uploadedFiles.borrowerNationalIdBackFiles.length === 0) {
+            showNotification('يرجى رفع البطاقة الوطنية (الوجه الخلفي) للمقترض', 'error');
+            isValid = false;
+        }
+        if (uploadedFiles.guarantorNationalIdFrontFiles.length === 0) {
+            showNotification('يرجى رفع البطاقة الوطنية (الوجه الأمامي) للكفيل', 'error');
+            isValid = false;
+        }
+        if (uploadedFiles.guarantorNationalIdBackFiles.length === 0) {
+            showNotification('يرجى رفع البطاقة الوطنية (الوجه الخلفي) للكفيل', 'error');
+            isValid = false;
+        }
+    }
+    
+    return isValid;
+}
+
+function submitForm() {
+    // التحقق من وضع التحدي
+    if (challengeMode && challengeTimeLeft <= 0) {
+        showNotification('انتهى وقت التحدي! لا يمكن إرسال النموذج.', 'error');
+        return;
+    }
+    
+    // التحقق من صحة النموذج
+    if (!validateForm()) {
+        showNotification('يرجى ملء جميع الحقول المطلوبة', 'error');
+        return;
+    }
+    
+    showNotification('جاري إرسال الطلب...');
+    
+    // محاكاة إرسال البيانات إلى الخادم
+    setTimeout(() => {
+        if (challengeMode) {
+            showNotification(`تم إرسال الطلب بنجاح خلال وضع التحدي! ${currentUser.name} استغرق ${formatTime(CHALLENGE_DURATION - challengeTimeLeft)}`, 'success');
+            
+            // إنهاء التحدي بعد الإرسال الناجح
+            setTimeout(() => {
+                endChallengeMode(false);
+            }, 2000);
+        } else {
+            showNotification('تم إرسال الطلب بنجاح خلال الوقت المحدد.');
+        }
+        
+        // مسح النموذج بعد الإرسال
+        setTimeout(() => {
+            clearForm();
+        }, 1000);
+    }, 2000);
+}
+
+function clearForm() {
+    // مسح جميع حقول الإدخال النصية
+    document.querySelectorAll('input[type="text"], input[type="tel"], input[type="email"], input[type="date"], input[type="number"]').forEach(field => {
+        field.value = '';
+    });
+    
+    // مسح جميع حقول التحديد (select)
+    document.querySelectorAll('select').forEach(field => {
+        field.selectedIndex = 0;
+    });
+    
+    // مسح جميع حقول النصوص الكبيرة (textarea)
+    document.querySelectorAll('textarea').forEach(field => {
+        field.value = '';
+    });
+    
+    // مسح جميع حقول رفع الملفات
+    document.querySelectorAll('input[type="file"]').forEach(field => {
+        field.value = '';
+    });
+    
+    // مسح جميع الملفات المرفوعة من الكائن
+    uploadedFiles = {
+        borrowerNationalIdFrontFiles: [],
+        borrowerNationalIdBackFiles: [],
+        borrowerHousingCardFrontFiles: [],
+        borrowerHousingCardBackFiles: [],
+        guarantorNationalIdFrontFiles: [],
+        guarantorNationalIdBackFiles: [],
+        guarantorHousingCardFrontFiles: [],
+        guarantorHousingCardBackFiles: [],
+        workIdFrontFiles: [],
+        workIdBackFiles: [],
+        martyrInstitutionIdFiles: [],
+        disabilityDocumentFiles: [],
+        passportFiles: []
+    };
+    
+    // مسح معاينات الملفات
+    document.querySelectorAll('.file-preview-container').forEach(container => {
+        container.innerHTML = '';
+    });
+    
+    // إعادة تعيين مناطق السحب والإفلات
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.classList.remove('dragover');
+    });
+    
+    // مسح حقول العرض
+    document.querySelectorAll('.field-display').forEach(display => {
+        display.textContent = '';
+        display.classList.add('empty');
+        display.onclick = null;
+        display.style.cursor = 'default';
+    });
+    
+    // إعادة تعيين الألوان الحدودية
+    document.querySelectorAll('input, select, textarea').forEach(field => {
+        field.style.borderColor = '#ddd';
+        field.classList.remove('invalid', 'valid');
+    });
+    
+    // إزالة أي رسائل خطأ
+    document.querySelectorAll('.error-message').forEach(error => {
+        error.remove();
+    });
+    
+    // إعادة تعيين أزرار النسخ
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.classList.add('hidden');
+        btn.innerHTML = '<i class="fas fa-copy"></i> نسخ';
+        btn.classList.remove('copied');
+    });
+    
+    // تمكين زر الإرسال إذا كان معطلاً
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-paper-plane"></i> تأكيد وإرسال';
+    
+    // إعادة تعيين عنوان الرسالة في حالة التحدي
+    if (!challengeMode) {
+        document.getElementById('headerMessage').textContent = 'وضع التدريب مفعل: التسجيل مفتوح حالياً بدون قيود زمنية.';
+    }
+    
+    console.log('✓ تم مسح النموذج بالكامل');
+}
+
+// ==================== وظائف العرض والنسخ ====================
+
+function updateDisplayFields() {
+    // تحديث حقول النموذج النصية
+    document.querySelectorAll('.field-display:not([id*="Image"]):not([id*="Doc"])').forEach(display => {
+        const fieldId = display.id.replace('-display', '');
+        const inputField = document.getElementById(fieldId);
+        
+        if (inputField) {
+            let displayValue = '';
+            
+            if (inputField.tagName === 'SELECT') {
+                const selectedOption = inputField.options[inputField.selectedIndex];
+                displayValue = selectedOption.text;
+            } else {
+                displayValue = inputField.value;
+            }
+            
+            if (displayValue) {
+                display.textContent = displayValue;
+                display.classList.remove('empty');
+            } else {
+                display.textContent = '(فارغ)';
+                display.classList.add('empty');
+            }
+        }
+    });
+    
+    // تحديث حقول الملفات
+    const fileDisplays = [
+        // مستمسكات المقترض
+        { id: 'borrowerNationalIdFront-display', files: uploadedFiles.borrowerNationalIdFrontFiles },
+        { id: 'borrowerNationalIdBack-display', files: uploadedFiles.borrowerNationalIdBackFiles },
+        { id: 'borrowerHousingCardFront-display', files: uploadedFiles.borrowerHousingCardFrontFiles },
+        { id: 'borrowerHousingCardBack-display', files: uploadedFiles.borrowerHousingCardBackFiles },
+        
+        // مستمسكات الكفيل
+        { id: 'guarantorNationalIdFront-display', files: uploadedFiles.guarantorNationalIdFrontFiles },
+        { id: 'guarantorNationalIdBack-display', files: uploadedFiles.guarantorNationalIdBackFiles },
+        { id: 'guarantorHousingCardFront-display', files: uploadedFiles.guarantorHousingCardFrontFiles },
+        { id: 'guarantorHousingCardBack-display', files: uploadedFiles.guarantorHousingCardBackFiles },
+        { id: 'workIdFront-display', files: uploadedFiles.workIdFrontFiles },
+        { id: 'workIdBack-display', files: uploadedFiles.workIdBackFiles },
+        
+        // مستمسكات أخرى
+        { id: 'martyrInstitutionId-display', files: uploadedFiles.martyrInstitutionIdFiles },
+        { id: 'disabilityDocument-display', files: uploadedFiles.disabilityDocumentFiles },
+        { id: 'passport-display', files: uploadedFiles.passportFiles }
+    ];
+    
+    fileDisplays.forEach(item => {
+        const display = document.getElementById(item.id);
+        if (display) {
+            if (item.files.length > 0) {
+                display.textContent = `${item.files.length} ملف(ـات) مرفوع`;
+                display.classList.remove('empty');
+            } else {
+                display.textContent = '(لم يتم رفع ملفات)';
+                display.classList.add('empty');
+            }
+        }
+    });
+}
+
+function openImagePreview(imageSrc) {
+    if (imageSrc) {
+        document.getElementById('previewImageLarge').src = imageSrc;
+        document.getElementById('imagePreviewModal').style.display = 'flex';
+    }
+}
+
+function closeImagePreview() {
+    document.getElementById('imagePreviewModal').style.display = 'none';
+}
+
+function copyDisplayValue(displayId) {
+    const display = document.getElementById(displayId);
+    if (!display) return;
+    
+    const textToCopy = display.textContent.replace('(فارغ)', '').replace('(لم يتم رفع ملفات)', '').trim();
+    
+    if (textToCopy) {
+        copyToClipboard(textToCopy);
+        
+        // تأثير مرئي
+        const copyBtn = event.currentTarget;
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fas fa-check"></i> تم النسخ!';
+        copyBtn.classList.add('copied');
+        
+        setTimeout(() => {
+            copyBtn.innerHTML = originalText;
+            copyBtn.classList.remove('copied');
+        }, 2000);
+    } else {
+        showNotification('لا يوجد نص للنسخ', 'warning');
+    }
+}
+
+function copyAllData() {
+    let allData = '=== ملخص بيانات طلب القرض ===\n\n';
+    
+    const fieldRows = document.querySelectorAll('.field-row');
+    fieldRows.forEach(row => {
+        const label = row.querySelector('.field-label').textContent.replace('*', '').trim();
+        const display = row.querySelector('.field-display');
+        
+        if (display && !display.classList.contains('hidden')) {
+            const value = display.textContent.replace('(فارغ)', '').replace('(لم يتم رفع ملفات)', '').trim();
+            
+            if (value) {
+                allData += `${label}: ${value}\n`;
+            }
+        }
+    });
+    
+    if (allData.trim() === '=== ملخص بيانات طلب القرض ===') {
+        showNotification('لا توجد بيانات للنسخ', 'warning');
+        return;
+    }
+    
+    copyToClipboard(allData);
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('تم النسخ إلى الحافظة!');
+        }).catch(err => {
+            fallbackCopyText(text);
+        });
+    } else {
+        fallbackCopyText(text);
+    }
+}
+
+function fallbackCopyText(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showNotification('تم النسخ إلى الحافظة!');
+    } catch (err) {
+        showNotification('فشل النسخ، يرجى المحاولة مرة أخرى', 'error');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const notificationText = document.getElementById('notificationText');
+    
+    notificationText.textContent = message;
+    notification.className = "notification";
+    
+    if (type === 'error') {
+        notification.classList.add('error');
+    } else if (type === 'warning') {
+        notification.classList.add('warning');
+    }
+    
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+// ==================== وظائف إضافية للواجهة ====================
+
+function updateSavedFormsList() {
+    const savedList = document.getElementById('savedList');
+    const savedFormsSelect = document.getElementById('savedForms');
+    
+    savedFormsSelect.innerHTML = '<option value="">اختر نموذج للعرض...</option>';
+    
+    if (savedForms.length === 0) {
+        savedList.innerHTML = '<div class="empty-message">لا توجد نماذج محفوظة بعد</div>';
+        return;
+    }
+    
+    savedForms.forEach(form => {
+        const option = document.createElement('option');
+        option.value = form.id;
+        option.textContent = form.name;
+        savedFormsSelect.appendChild(option);
+    });
+    
+    savedList.innerHTML = '';
+    savedForms.forEach(form => {
+        const item = document.createElement('div');
+        item.className = 'saved-item';
+        item.innerHTML = `
+            <div class="saved-item-info">
+                <div class="saved-item-name">${form.name}</div>
+                <div class="saved-item-details">تم الحفظ: ${form.timestamp}</div>
+            </div>
+            <div class="saved-item-actions">
+                <button class="item-btn view" onclick="loadFormById('${form.id}')">
+                    <i class="fas fa-eye"></i> عرض
+                </button>
+                <button class="item-btn delete" onclick="deleteFormById('${form.id}')">
+                    <i class="fas fa-trash"></i> حذف
+                </button>
+            </div>
+        `;
+        savedList.appendChild(item);
+    });
+}
+
+function loadSavedForm(formId) {
+    if (!formId) return;
+    loadFormById(formId);
+}
+
+function loadFormById(formId) {
+    const form = savedForms.find(f => f.id === formId);
+    if (!form) {
+        showNotification('النموذج غير موجود', 'error');
+        return;
+    }
+    
+    Object.keys(form.data).forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field && field.type !== 'file') {
+            field.value = form.data[fieldId];
+        }
+    });
+    
+    currentFormId = formId;
+    
+    if (currentMode === 'view') {
+        updateDisplayFields();
+    }
+    
+    showNotification(`تم تحميل النموذج: ${form.name}`);
+}
+
+function deleteSelectedForm() {
+    const select = document.getElementById('savedForms');
+    const formId = select.value;
+    
+    if (!formId) {
+        showNotification('يرجى اختيار نموذج للحذف', 'warning');
+        return;
+    }
+    
+    deleteFormById(formId);
+}
+
+function deleteFormById(formId) {
+    if (!confirm('هل أنت متأكد من حذف هذا النموذج؟')) {
+        return;
+    }
+    
+    savedForms = savedForms.filter(f => f.id !== formId);
+    localStorage.setItem('loanForms', JSON.stringify(savedForms));
+    
+    if (currentFormId === formId) {
+        clearForm();
+        currentFormId = null;
+    }
+    
+    updateSavedFormsList();
+    showNotification('تم حذف النموذج بنجاح');
+}
+
+function refreshSavedForms() {
+    loadSavedForms();
+    updateSavedFormsList();
+    showNotification('تم تحديث قائمة النماذج');
+}
+
+// ==================== بدء التشغيل ====================
+
+document.addEventListener('DOMContentLoaded', initializeSystem);
+
+// إغلاق معاينة الصورة بالزر ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeImagePreview();
+    }
+});
+        </script>
+
+    </body>
+</html>
